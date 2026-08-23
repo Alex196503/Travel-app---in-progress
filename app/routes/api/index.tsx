@@ -59,7 +59,6 @@ export async function loader({ params, request }: Route.LoaderArgs) {
 
 export default function ApiPage() {
   const redirectTo = useNavigate()
-  let { isDark, setDark } = useThemeContext()
   const { countries, error } = useLoaderData<typeof loader>()
   const [search, setSearchedValue] = useState("")
   const [filter, setFilter] = useState("")
@@ -67,7 +66,6 @@ export default function ApiPage() {
   const debouncedValue = useDebouncer(search, 1000)
   const navigate = useNavigation()
   const isLoading = navigate.state === "loading"
-  const { user } = useAuth()
 
   useEffect(() => {
     if (!error) return

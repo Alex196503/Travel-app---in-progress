@@ -149,5 +149,6 @@ export interface UserBookingRow {
   trip_id: number
   trip_title: string
   trip_price: number | string
+  available_seats?: number | string
   cover_image_url: string | null
 }

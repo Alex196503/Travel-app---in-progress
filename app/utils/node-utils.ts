@@ -70,7 +70,8 @@ export const uploadMiddleware = (folderName: string) => {
 // across multiple server instances.
 const cooldownMaps = {
   verification: new Map<string, number>(),
-  passwordReset: new Map<string, number>()
+  passwordReset: new Map<string, number>(),
+  editBooking: new Map<string, number>()
 }
 
 // Check if a cooldown is still active for a given type and key. Returns isCooldown flag and remaining minutes if active.
