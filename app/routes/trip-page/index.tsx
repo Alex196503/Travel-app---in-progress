@@ -18,8 +18,7 @@ import {
   useModalBooking,
   useUserBookings
 } from "~/custom-hooks/react-hooks"
-import { useEffect, useState } from "react"
-import { type UserBookingRow } from "~/types/types"
+
 import BookingCartModal from "./local_components/BookingCartModal"
 
 export const meta = () =>

@@ -1,10 +1,81 @@
+import axios from "axios"
+import { useState } from "react"
+import { api } from "~/axios/axios"
 import type { UserBookingRow } from "~/types/types"
+import { ToastContainer } from "react-toastify"
+import { toast } from "react-toastify"
+import { useCountdown } from "~/custom-hooks/react-hooks"
 
 export const BookingModalCard = ({
   booking
 }: {
   booking: UserBookingRow
 }) => {
+  const [isEditing, setEditing] = useState(false)
+  const [seats, setSeats] = useState(booking.seats_booked)
+  const maxAllowedSeats =
+    booking.seats_booked + Number(booking.available_seats)
+  const { countdown, setCountdown, formattedTime, isCounting } =
+    useCountdown(0)
+  const [isLoading, setLoading] = useState(false)
+  const [isCancellingLoading, setLoadingForCancelling] =
+    useState(false)
+  const updateBooking = async (id: number, seats: number) => {
+    try {
+      setLoading(true)
+      let res = await api.patch<{
+        success: boolean
+        message: string
+      }>("/bookings", { booking_id: id, seats_booked: seats })
+      if (res.data.success) {
+        setCountdown(300)
+        toast.success(res.data.message)
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        toast.error(
+          "Failed to update booking:",
+          error.response?.data?.message || error.message
+        )
+      } else {
+        toast.error(
+          `An unexpected error occurred during booking! ${error}`
+        )
+      }
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function cancelButton(id: number) {
+    try {
+      setLoadingForCancelling(true)
+      let res = await api.patch<{
+        success: boolean
+        message: string
+      }>("/bookings/cancel", { booking_id: id })
+      if (res.data.success) {
+        toast.success(
+          res.data.message ||
+            `Your booking with the id ${id} has been cancelled!`
+        )
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        toast.error(
+          "Failed to update booking:",
+          error.response?.data?.message || error.message
+        )
+      } else {
+        toast.error(
+          `An unexpected error occurred during booking! ${error}`
+        )
+      }
+    } finally {
+      setLoadingForCancelling(false)
+    }
+  }
+
   return (
     <article
       key={booking.booking_id}
@@ -44,9 +115,31 @@ export const BookingModalCard = ({
         <div className="grid grid-cols-2 gap-2 text-sm text-gray-600 dark:text-gray-300">
           <section>
             <span className="span-modal-booking">Seats booked: </span>
-            <span className="font-medium">
-              {booking.seats_booked}
-            </span>
+            {isEditing ? (
+              <div className="flex items-center gap-1 max-w-[75px] mt-3 bg-white dark:bg-slate-900 border border-gray-300 dark:border-white/20 rounded-lg p-0.5">
+                <button
+                  type="button"
+                  onClick={() => setSeats(Math.max(1, seats - 1))}
+                  disabled={seats <= 1}
+                  className="px-2 py-0.5 text-xs font-bold hover:bg-gray-100 dark:hover:bg-slate-800 rounded cursor-pointer"
+                >
+                  -
+                </button>
+                <span className="font-medium px-2 text-xs">
+                  {seats}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setSeats(seats + 1)}
+                  disabled={seats >= maxAllowedSeats}
+                  className="px-2 py-0.5 text-xs font-bold hover:bg-gray-100 dark:hover:bg-slate-800 rounded cursor-pointer"
+                >
+                  +
+                </button>
+              </div>
+            ) : (
+              <span className="font-medium">{seats}</span>
+            )}
           </section>
           <div>
             <span className="span-modal-booking">Total: </span>
@@ -61,26 +154,70 @@ export const BookingModalCard = ({
             Booked on:{" "}
             {new Date(booking.createdAt).toLocaleDateString()}
           </p>
-          {booking.status === "PENDING" && (
-            <button className="flex items-center cursor-pointer justify-center gap-2 px-6 py-2 font-semibold text-white bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl shadow-lg hover:from-blue-700 hover:to-indigo-700 hover:shadow-xl active:scale-95 transition-all duration-200">
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
-                ></path>
-              </svg>
-              Pay Now
-            </button>
-          )}
+          <div className="flex items-center gap-2">
+            {booking.status === "PENDING" && (
+              <>
+                {isEditing || isLoading ? (
+                  <>
+                    <button
+                      type="button"
+                      disabled={isCounting}
+                      style={{ opacity: isCounting ? 0.5 : 1 }}
+                      onClick={() => {
+                        setEditing(false)
+                        if (seats === booking.seats_booked) {
+                          toast.info("No modification made!")
+                          return
+                        }
+                        updateBooking(booking.booking_id, seats)
+                      }}
+                      className="px-3 py-1 font-semibold text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors cursor-pointer text-xs"
+                    >
+                      {isCounting
+                        ? `Update booking in ${formattedTime}`
+                        : "Update"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSeats(booking.seats_booked)
+                        setEditing(false)
+                      }}
+                      className="px-3 py-1 font-medium text-gray-600 dark:text-gray-300 bg-gray-200 dark:bg-slate-700 hover:bg-gray-300 rounded-lg transition-colors cursor-pointer text-xs"
+                    >
+                      Cancel
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => setEditing(true)}
+                      className="px-3 py-1 font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10 hover:bg-blue-100 rounded-lg transition-colors cursor-pointer text-xs"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      type="button"
+                      className="px-3 py-1 font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-500/10 hover:bg-red-100 rounded-lg transition-colors cursor-pointer text-xs"
+                      onClick={() => cancelButton(booking.booking_id)}
+                    >
+                      {isCancellingLoading
+                        ? "Cancelling..."
+                        : "Cancel"}
+                    </button>
+                  </>
+                )}
+              </>
+            )}
+          </div>
         </section>
       </div>
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        closeOnClick={true}
+      />
     </article>
   )
 }

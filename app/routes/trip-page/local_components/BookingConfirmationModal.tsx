@@ -39,7 +39,7 @@ export const BookingConfirmationModal = ({
         <div className="space-y-4">
           <article className="flex items-center justify-between">
             <span className="text-sm font-medium text-gray-700">
-              {available_seats} seats
+              {available_seats} available seats
             </span>
             <div className="flex items-center rounded-lg border border-gray-300 overflow-hidden">
               <button
