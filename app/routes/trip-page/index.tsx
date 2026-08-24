@@ -81,8 +81,13 @@ export default function TripPage() {
       return prev
     })
   }
-  const { bookings, bookingsCounter, isLoading, error } =
-    useUserBookings(isModalBookingsOpen)
+  const {
+    bookings,
+    bookingsCounter,
+    isLoading,
+    error,
+    updateBookingStatus
+  } = useUserBookings(isModalBookingsOpen)
   return (
     <>
       <div className="w-full min-h-screen bg-slate-50 dark:bg-slate-950 py-8 px-4 sm:px-6 lg:px-8">
@@ -258,6 +263,7 @@ export default function TripPage() {
             bookings={bookings}
             bookingCounter={bookingsCounter}
             isLoading={isLoading}
+            updateBookingStatus={updateBookingStatus}
           />
         )}
       </div>

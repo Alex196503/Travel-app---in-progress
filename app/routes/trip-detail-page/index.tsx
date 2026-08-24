@@ -76,9 +76,14 @@ export default function TripDetailPage() {
     setActiveImage(trip?.images[nextIndex].url)
   }
 
-  const { bookings, bookingsCounter, isLoading, error } =
-    useUserBookings(isModalBookingsOpen)
-
+  const {
+    bookings,
+    bookingsCounter,
+    isLoading,
+    error,
+    updateBookingStatus
+  } = useUserBookings(isModalBookingsOpen)
+  console.log(updateBookingStatus)
   const goPrev = (e: React.MouseEvent) => {
     e.stopPropagation()
     if (!trip.images || trip.images.length <= 0) return
@@ -240,6 +245,7 @@ export default function TripDetailPage() {
           bookings={bookings}
           isLoading={isLoading}
           bookingCounter={bookingsCounter}
+          updateBookingStatus={updateBookingStatus}
         />
       )}
     </main>
