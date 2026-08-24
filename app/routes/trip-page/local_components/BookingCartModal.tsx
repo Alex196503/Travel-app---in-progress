@@ -6,12 +6,14 @@ export default function BookingCartModal({
   setModalBookingsOpen,
   bookings,
   isLoading,
-  bookingCounter
+  bookingCounter,
+  updateBookingStatus
 }: {
   setModalBookingsOpen: React.Dispatch<React.SetStateAction<boolean>>
   bookings: UserBookingRow[] | undefined
   isLoading: boolean
   bookingCounter: number
+  updateBookingStatus: (id: number, newStatus: string) => void
 }) {
   const [statusFilter, setStatusFilter] = useState("ALL")
   let selectOptions = [
@@ -74,6 +76,7 @@ export default function BookingCartModal({
                 <BookingModalCard
                   key={booking.booking_id}
                   booking={booking}
+                  updateBookingStatus={updateBookingStatus}
                 />
               ))
             )}

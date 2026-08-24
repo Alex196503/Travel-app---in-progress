@@ -7,9 +7,11 @@ import { toast } from "react-toastify"
 import { useCountdown } from "~/custom-hooks/react-hooks"
 
 export const BookingModalCard = ({
-  booking
+  booking,
+  updateBookingStatus
 }: {
   booking: UserBookingRow
+  updateBookingStatus: (id: number, newStatus: string) => void
 }) => {
   const [isEditing, setEditing] = useState(false)
   const [seats, setSeats] = useState(booking.seats_booked)
@@ -59,6 +61,9 @@ export const BookingModalCard = ({
           res.data.message ||
             `Your booking with the id ${id} has been cancelled!`
         )
+      }
+      if (updateBookingStatus) {
+        updateBookingStatus(id, "CANCELLED")
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -115,7 +120,7 @@ export const BookingModalCard = ({
         <div className="grid grid-cols-2 gap-2 text-sm text-gray-600 dark:text-gray-300">
           <section>
             <span className="span-modal-booking">Seats booked: </span>
-            {isEditing ? (
+            {isEditing && booking.status !== "CANCELLED" ? (
               <div className="flex items-center gap-1 max-w-[75px] mt-3 bg-white dark:bg-slate-900 border border-gray-300 dark:border-white/20 rounded-lg p-0.5">
                 <button
                   type="button"

@@ -165,6 +165,17 @@ export function useFormToast<
 // Custom hook to fetch and manage the current user's bookings. Automatically triggers when the associated modal/drawer opens.
 export const useUserBookings = (isOpen: boolean) => {
   const [bookings, setBookings] = useState<UserBookingRow[]>()
+  const updateBookingStatus = (id: number, newStatus: string) => {
+    setBookings((prev) => {
+      if (!prev) return []
+      const updated = prev?.map((booking) =>
+        Number(booking.booking_id) === id
+          ? { ...booking, status: newStatus }
+          : booking
+      )
+      return updated
+    })
+  }
   const [bookingsCounter, setBookingsCounter] = useState(0)
   const [isLoading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -197,5 +208,11 @@ export const useUserBookings = (isOpen: boolean) => {
     }
     bringBookings()
   }, [isOpen])
-  return { bookings, bookingsCounter, isLoading, error }
+  return {
+    bookings,
+    bookingsCounter,
+    updateBookingStatus,
+    isLoading,
+    error
+  }
 }
