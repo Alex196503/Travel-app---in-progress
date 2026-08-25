@@ -151,4 +151,20 @@ export interface UserBookingRow {
   trip_price: number | string
   available_seats?: number | string
   cover_image_url: string | null
+  start_date?: Date | string
+  end_date?: Date | string
+}
+
+export interface CalendarDay {
+  date: Date
+  dayNumber: number
+  isCurrentMonth: boolean
+  isToday: boolean
+}
+
+export interface FormattedBookingForCalendar {
+  id: number
+  startDate: Date
+  title: string
+  endDate: Date
 }

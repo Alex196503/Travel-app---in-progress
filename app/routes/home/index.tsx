@@ -7,20 +7,46 @@ import ApiNav from "../api/local_components/ApiNav"
 import { IoMoon } from "react-icons/io5"
 import { IoSunny } from "react-icons/io5"
 import { getMeta } from "~/helpers/helpers"
-import type { LoaderFunctionArgs } from "react-router"
+import { useLoaderData, type LoaderFunctionArgs } from "react-router"
 import { requireAuthOnServer } from "~/utils/frontend-utils"
 import axios from "axios"
 import { toast, ToastContainer } from "react-toastify"
 import { api } from "~/axios/axios"
 import { useState } from "react"
+import { CalendarContainer } from "./local_components/CalendarContainer"
+import { type UserBookingRow } from "~/types/types"
 export const meta = () => getMeta("Home")
 
 export async function loader({ request }: LoaderFunctionArgs) {
   await requireAuthOnServer(request)
-  return null
+
+  try {
+    const cookieHeader = request.headers.get("cookie")
+    const res = await api.get<{ bookings: UserBookingRow[] }>(
+      "/bookings/",
+      {
+        headers: {
+          cookie: cookieHeader || ""
+        }
+      }
+    )
+    return { bookingsApiResponse: res.data.bookings }
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const status = error.response?.status || 500
+      const message =
+        error.response?.data?.message || "Failed to fetch bookings"
+      throw new Response(message, { status })
+    }
+
+    throw new Response("An unexpected error occurred", {
+      status: 500
+    })
+  }
 }
 
 export default function Home() {
+  let bookings = useLoaderData<typeof loader>().bookingsApiResponse
   const [isLoading, setLoading] = useState(false)
   const { countdown, setCountdown, formattedTime, isCounting } =
     useCountdown(0)
@@ -50,7 +76,6 @@ export default function Home() {
       setLoading(false)
     }
   }
-  const { isDark, setDark } = useThemeContext()
   const { user } = useAuth()
   return (
     <main className="max-w-6xl mx-auto px-6 py-10 flex flex-col gap-10">
@@ -134,31 +159,8 @@ export default function Home() {
             <h3 className="text-xl font-bold text-white">
               Your Next Adventures
             </h3>
-            <p className="text-sm text-slate-400 leading-relaxed">
-              You haven't scheduled any trips yet. Start organizing
-              your dream destinations in a simple, elegant, and fast
-              way.
-            </p>
           </div>
-
-          <div className="grid grid-cols-2 gap-4 pt-6 border-t border-slate-800/80 mt-6 text-center">
-            <div className="bg-slate-800/40 border border-slate-700/40 p-3 rounded-2xl">
-              <span className="block text-xl font-bold text-white">
-                0
-              </span>
-              <span className="text-[11px] text-slate-400 uppercase tracking-wider">
-                Trips
-              </span>
-            </div>
-            <div className="bg-slate-800/40 border border-slate-700/40 p-3 rounded-2xl">
-              <span className="block text-xl font-bold text-white">
-                0
-              </span>
-              <span className="text-[11px] text-slate-400 uppercase tracking-wider">
-                Countries
-              </span>
-            </div>
-          </div>
+          <CalendarContainer bookings={bookings} />
         </div>
       </section>
       <ToastContainer
