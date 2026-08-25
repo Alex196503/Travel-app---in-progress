@@ -21,9 +21,11 @@ export class BookingQueryService {
                 t.id AS trip_id,
                 t.title AS trip_title,
                 t.price AS trip_price,
+                t.start_date,
+                t.end_date,
                 i.url AS cover_image_url
               FROM bookings b 
-              JOIN trips t ON b.trip_id = t.id 
+              LEFT JOIN trips t ON b.trip_id = t.id 
               LEFT JOIN images i ON t.id = i.trip_id AND i.is_cover = true
               WHERE b.user_id = ${Number(userId)}
               ORDER BY b.createdAt DESC;
