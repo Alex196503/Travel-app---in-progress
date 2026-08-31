@@ -11,6 +11,7 @@ import type {
   Trip,
   TripCategory
 } from "../../generated/prisma/client"
+import { authentificationMiddleware } from "~/middleware/authMiddleware"
 export const TripRouter = express.Router()
 export const tripService = new TripsService(prisma)
 export type TripWithImages = Trip & {
@@ -20,6 +21,7 @@ export type TripWithImages = Trip & {
 
 TripRouter.get(
   "/",
+  authentificationMiddleware,
   async (
     req: Request<
       {},
@@ -38,6 +40,7 @@ TripRouter.get(
     next: NextFunction
   ) => {
     try {
+      let userId = req?.user?.id;
       const page = Number(req.query.page) || 1
       const limit = 3
       let categoryParam = req.query.category
@@ -52,7 +55,8 @@ TripRouter.get(
         maxPriceParam,
         page,
         limit,
-        sortParam
+        sortParam,
+        userId
       })
       return res.status(200).json({
         success: true,

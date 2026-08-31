@@ -5,6 +5,7 @@ import type { UserBookingRow } from "~/types/types"
 import { ToastContainer } from "react-toastify"
 import { toast } from "react-toastify"
 import { useCountdown } from "~/custom-hooks/react-hooks"
+import StripePaymentButton from "~/routes/trip-detail-page/local_components/StripePaymentButton"
 
 export const BookingModalCard = ({
   booking,
@@ -20,6 +21,7 @@ export const BookingModalCard = ({
   const { countdown, setCountdown, formattedTime, isCounting } =
     useCountdown(0)
   const [isLoading, setLoading] = useState(false)
+  const [isRefundLoading, setLoadingForRefunding] = useState(false)
   const [isCancellingLoading, setLoadingForCancelling] =
     useState(false)
   const updateBooking = async (id: number, seats: number) => {
@@ -49,6 +51,36 @@ export const BookingModalCard = ({
     }
   }
 
+  async function refundTrip(bookingId: number) {
+    try {
+      setLoadingForRefunding(true)
+      let res = await api.post<{ success: boolean; message: string }>(
+        `payments/refund-booking/${bookingId}`
+      )
+      if (res.data.success) {
+        toast.success(
+          res.data.message || "Booking refunded succesfully!"
+        )
+        if (updateBookingStatus) {
+          updateBookingStatus(bookingId, "CANCELLED")
+        }
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        toast.error(
+          "Failed to update booking:",
+          error.response?.data?.message || error.message
+        )
+      } else {
+        toast.error(
+          `An unexpected error occurred during booking! ${error}`
+        )
+      }
+    } finally {
+      setLoadingForRefunding(false)
+    }
+  }
+
   async function cancelButton(id: number) {
     try {
       setLoadingForCancelling(true)
@@ -61,9 +93,9 @@ export const BookingModalCard = ({
           res.data.message ||
             `Your booking with the id ${id} has been cancelled!`
         )
-      }
-      if (updateBookingStatus) {
-        updateBookingStatus(id, "CANCELLED")
+        if (updateBookingStatus) {
+          updateBookingStatus(id, "CANCELLED")
+        }
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -160,6 +192,19 @@ export const BookingModalCard = ({
             {new Date(booking.createdAt).toLocaleDateString()}
           </p>
           <div className="flex items-center gap-2">
+            {booking.status === "CONFIRMED" && (
+              <button
+                disabled={isRefundLoading}
+                onClick={() => {
+                  refundTrip(booking.booking_id)
+                }}
+                className="rounded-lg cursor-pointer bg-red-600 px-4 py-2 font-medium text-white transition-colors hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+              >
+                {isRefundLoading
+                  ? "Requesting Refund & Cancel..."
+                  : "Refund trip"}
+              </button>
+            )}
             {booking.status === "PENDING" && (
               <>
                 {isEditing || isLoading ? (
@@ -211,6 +256,9 @@ export const BookingModalCard = ({
                         ? "Cancelling..."
                         : "Cancel"}
                     </button>
+                    <StripePaymentButton
+                      bookingId={booking.booking_id}
+                    />
                   </>
                 )}
               </>

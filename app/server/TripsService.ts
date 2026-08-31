@@ -18,6 +18,7 @@ export class TripsService {
     page: number
     limit: number
     sortParam?: string
+    userId?: string
   }) {
     const {
       categoryParam,
@@ -26,7 +27,8 @@ export class TripsService {
       maxPriceParam,
       page,
       limit,
-      sortParam
+      sortParam,
+      userId
     } = query
     const isValidCategory =
       categoryParam &&

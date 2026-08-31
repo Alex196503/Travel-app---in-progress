@@ -43,7 +43,6 @@ BookingRouter.post(
     try {
       let tripId = Number(req.body.trip_id)
       let seats_booked = req.body.seats_booked
-      console.log(seats_booked)
       if (!tripId || isNaN(tripId) || tripId <= 0) {
         return res.status(400).json({
           success: false,

@@ -168,3 +168,28 @@ export interface FormattedBookingForCalendar {
   title: string
   endDate: Date
 }
+
+export interface CreateSessionParams {
+  bookingId: number
+  userId: number
+  totalPrice: number | string
+  seatsBooked: number
+  tripId: number
+  successUrl: string
+  cancelUrl: string
+  userEmail : string
+}
+
+export interface PaymentApiResponse {
+  id: number
+  user_id: number
+  booking_id: number
+  stripe_payment_intent_id: string
+  amount: number | string
+  status: string
+  createdAt: string | Date
+  updatedAt: string | Date
+  booking: UserBookingRow & {
+    trip: TripWithImages
+  }
+}

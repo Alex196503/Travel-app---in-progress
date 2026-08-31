@@ -1,4 +1,4 @@
-// Error class for handling bad requests
+// Error class for handling bad requests ->(HTTP status 400)
 export class BadRequestError extends Error {
   constructor(message: string) {
     super(message)
@@ -6,7 +6,7 @@ export class BadRequestError extends Error {
   }
 }
 
-// Error class for handling Unauthorized requests
+// Error class for handling Unauthorized requests ->(HTTP status 401)
 export class UnauthorizedError extends Error {
   constructor(message: string) {
     super(message)
@@ -14,11 +14,18 @@ export class UnauthorizedError extends Error {
   }
 }
 
-// Error class for handling not found errors
-export class NotFoundError extends Error{
-  constructor(message : string)
-  {
-    super(message);
+// Error class for handling not found errors ->(HTTP status 403)
+export class ForbiddenError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = "ForbiddenError"
+  }
+}
+
+// Error class for handling not found errors ->(HTTP status 404)
+export class NotFoundError extends Error {
+  constructor(message: string) {
+    super(message)
     this.name = "NotFoundError"
   }
 }

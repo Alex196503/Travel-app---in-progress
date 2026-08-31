@@ -1,11 +1,4 @@
-import {
-  useAuth,
-  useCountdown,
-  useThemeContext
-} from "~/custom-hooks/react-hooks"
-import ApiNav from "../api/local_components/ApiNav"
-import { IoMoon } from "react-icons/io5"
-import { IoSunny } from "react-icons/io5"
+import { useAuth, useCountdown } from "~/custom-hooks/react-hooks"
 import { getMeta } from "~/helpers/helpers"
 import { useLoaderData, type LoaderFunctionArgs } from "react-router"
 import { requireAuthOnServer } from "~/utils/frontend-utils"
@@ -50,6 +43,9 @@ export default function Home() {
   const [isLoading, setLoading] = useState(false)
   const { countdown, setCountdown, formattedTime, isCounting } =
     useCountdown(0)
+  const filteredBookings = bookings.filter(
+    (booking) => booking.status !== "CANCELLED"
+  )
   const handleResendVerification = async () => {
     setLoading(true)
     try {
@@ -82,7 +78,7 @@ export default function Home() {
       <section className="bg-slate-900/40 border border-slate-800/80 rounded-3xl p-8 backdrop-blur-xl flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl">
         <div className="space-y-2 text-center md:text-left">
           <h1 className="text-3xl font-extrabold tracking-tight text-white">
-            Welcome to VoyageFlow 🚀
+            Welcome to VoyageFlow
           </h1>
           <p className="text-sm text-slate-400">
             Manage your routes, authenticate securely, and explore the
@@ -160,7 +156,7 @@ export default function Home() {
               Your Next Adventures
             </h3>
           </div>
-          <CalendarContainer bookings={bookings} />
+          <CalendarContainer bookings={filteredBookings} />
         </div>
       </section>
       <ToastContainer

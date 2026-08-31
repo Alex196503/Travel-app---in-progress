@@ -70,9 +70,8 @@ export class BookingCreationService {
     setImmediate(async () => {
       try {
         if (result.user?.email) {
-          const paymentLink = `http://localhost:3000/checkout/${result.id}`
-          const emailSubject =
-            "Booking Confirmation - VoyageFlow (Payment coming soon)"
+          const paymentLink = `http://localhost:3000/trips`
+          const emailSubject = "Booking Confirmation - VoyageFlow"
           const emailBody = `
               Hello ${result.user.name || "Traveler"},
               Your trip booking has been successfully registered!
@@ -81,7 +80,7 @@ export class BookingCreationService {
               - Total amount: ${result.total_price} €
               - Status: ${result.status}
               
-              To complete your reservation, use the payment link below:
+              To complete your reservation, use the link below and access the section My bookings:
               ${paymentLink}
               
               Thank you for choosing VoyageFlow!
