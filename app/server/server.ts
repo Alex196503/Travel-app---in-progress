@@ -13,6 +13,10 @@ import { PasswordRouter } from "~/express-router/auth/PasswordRouter"
 import { ProfileRouter } from "~/express-router/ProfileRouter"
 import { TripRouter } from "~/express-router/TripRouter"
 import { BookingRouter } from "~/express-router/BookingRouter"
+import {
+  PaymentRouter,
+  webhookHandler
+} from "~/express-router/PaymentRouter"
 
 //Singleton pattern for server instance
 class Server {
@@ -24,6 +28,16 @@ class Server {
   }
   public useMiddleware(middleware: express.RequestHandler): void {
     this.app.use(middleware)
+  }
+  public addWebhookRoute(
+    path: string,
+    handler: express.RequestHandler
+  ) {
+    this.app.use(
+      path,
+      express.raw({ type: "application/json" }),
+      handler
+    )
   }
   public addMiddlewareError(
     middleware: express.ErrorRequestHandler
@@ -47,6 +61,7 @@ server.useMiddleware(
     credentials: true
   })
 )
+server.addWebhookRoute("/api/payments/webhook", webhookHandler)
 server.useMiddleware(express.json())
 server.useMiddleware(express.urlencoded({ extended: true }))
 server.useMiddleware(cookieParser())
@@ -57,6 +72,7 @@ server.addRouter("/api/auth", PasswordRouter)
 server.addRouter("/api/profile", ProfileRouter)
 server.addRouter("/api/trips", TripRouter)
 server.addRouter("/api/bookings", BookingRouter)
+server.addRouter("/api/payments", PaymentRouter)
 server.useMiddleware(routeNotFoundHandler)
 server.addMiddlewareError(globalErrorHandler)
 

@@ -18,6 +18,7 @@ import {
   useUserBookings
 } from "~/custom-hooks/react-hooks"
 import BookingCartModal from "../trip-page/local_components/BookingCartModal"
+import StripePaymentButton from "./local_components/StripePaymentButton"
 export const meta = () =>
   getMeta(
     "Trip details page",
@@ -83,7 +84,6 @@ export default function TripDetailPage() {
     error,
     updateBookingStatus
   } = useUserBookings(isModalBookingsOpen)
-  console.log(updateBookingStatus)
   const goPrev = (e: React.MouseEvent) => {
     e.stopPropagation()
     if (!trip.images || trip.images.length <= 0) return
@@ -203,9 +203,6 @@ export default function TripDetailPage() {
                 : "Book This Trip"}
             </button>
 
-            <p className="text-xs text-center text-zinc-400">
-              You won't be charged yet
-            </p>
             <Link
               to="/trips"
               className="mt-2 block mx-auto text-center w-full px-5 py-2.5 bg-amber-400 hover:bg-amber-600 cursor-pointer font-bold uppercase text-xs tracking-wider rounded-lg border border-slate-700 transition-all"

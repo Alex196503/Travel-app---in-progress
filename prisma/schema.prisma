@@ -26,6 +26,7 @@ model User{
   email_verification_token String? @db.Text
   email_verification_token_expires_at DateTime?
   bookings Booking[]
+  payment Payment[]
 }
 
 enum TripCategory {
@@ -81,7 +82,28 @@ model Booking {
   createdAt DateTime @default(now())
   user User @relation(fields: [user_id], references: [id], onDelete: Restrict)
   trip Trip @relation(fields: [trip_id], references: [id], onDelete: Restrict)
+  payment Payment[]
   @@unique([user_id, trip_id])
   @@map("bookings")
+}
 
+enum PaymentStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+  REFUNDED
+  CANCELLED
+}
+
+model Payment {
+  id Int @id @default(autoincrement())
+  user_id Int
+  booking_id Int
+  stripe_payment_intent_id String? @db.VarChar(255) @unique
+  user User @relation(fields: [user_id], references: [id], onDelete: Restrict)
+  booking Booking @relation(fields: [booking_id], references: [id], onDelete: Restrict)
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+  amount Decimal @db.Decimal(10, 2)
+  status PaymentStatus @default(PENDING)
 }
