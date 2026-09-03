@@ -116,9 +116,10 @@ export default function TripDetailPage() {
           </div>
           <section className="grid grid-cols-3 gap-4">
             {trip.images
-              ?.slice(1, trip.images.length)
+              ?.slice(0, trip.images.length)
               .map((image, index) => {
-                const isActive = image.url === activeImage
+                const isCurrentActive =
+                  (previewUrl || trip.images[0].url) === image.url
                 return (
                   <div
                     key={image.id}
@@ -129,11 +130,11 @@ export default function TripDetailPage() {
                       onClick={() => {
                         setActiveImage(image.url)
                         setPreviewURL(image.url)
-                        setCurrentIndex(index + 1)
+                        setCurrentIndex(index)
                       }}
                       alt={`Secondary ${image.id + 1}`}
                       className={`w-full h-full cursor-pointer object-cover rounded-xl transition-all duration-200 ${
-                        isActive
+                        isCurrentActive
                           ? "ring-4 ring-emerald-400"
                           : "hover:opacity-90"
                       }`}

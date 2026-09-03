@@ -15,6 +15,26 @@ const prisma = new PrismaClient({ adapter })
 
 async function main() {
   console.log("Seeding database...")
+
+  const notificationsData = [
+    {
+      user_id: 1,
+      message:
+        "We are thrilled to have you here. Start by planning your very first trip!",
+      type: "WELCOME",
+      was_read: false,
+      trip_id: null
+    },
+    {
+      user_id: 1,
+      message:
+        "You can add trips, check out the interface, and receive live notifications via SSE.",
+      type: "INFO",
+      was_read: false,
+      trip_id: null
+    }
+  ]
+
   const tripsData = [
     {
       title: "Apuseni Mountains Hiking Adventure",
@@ -129,9 +149,10 @@ async function main() {
       ]
     }
   ]
-  await Promise.all(
-    tripsData.map((trip) => {
-      return prisma.trip.create({
+
+  await Promise.all([
+    ...tripsData.map((trip) =>
+      prisma.trip.create({
         data: {
           title: trip.title,
           country_code: trip.country_code,
@@ -147,8 +168,20 @@ async function main() {
           }
         }
       })
-    })
-  )
+    ),
+
+    ...notificationsData.map((notification) =>
+      prisma.notifications.create({
+        data: {
+          type: notification.type,
+          trip_id: notification.trip_id,
+          user_id: notification.user_id,
+          message: notification.message,
+          was_read: notification.was_read
+        }
+      })
+    )
+  ])
 }
 main()
   .catch((err) => {

@@ -10,6 +10,7 @@ import {
 import {
   AuthContext,
   ModalContext,
+  NotificationContext,
   ThemeContext
 } from "~/react-contexts/context"
 import type { z, ZodFormattedError, ZodTypeAny } from "zod"
@@ -216,3 +217,16 @@ export const useUserBookings = (isOpen: boolean) => {
     error
   }
 }
+
+// Custom hook to safely consume the notifications context.
+export const useNotifications = () => {
+  const context = useContext(NotificationContext)
+  if (!context) {
+    throw new Error(
+      "useNotifications must be used within a NotificationProvider"
+    )
+  }
+  return context
+}
+
+

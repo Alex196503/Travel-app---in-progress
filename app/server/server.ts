@@ -17,6 +17,7 @@ import {
   PaymentRouter,
   webhookHandler
 } from "~/express-router/PaymentRouter"
+import { NotificationRouter } from "~/express-router/NotificationRouter"
 
 //Singleton pattern for server instance
 class Server {
@@ -73,6 +74,7 @@ server.addRouter("/api/profile", ProfileRouter)
 server.addRouter("/api/trips", TripRouter)
 server.addRouter("/api/bookings", BookingRouter)
 server.addRouter("/api/payments", PaymentRouter)
+server.addRouter("/api/notifications", NotificationRouter);
 server.useMiddleware(routeNotFoundHandler)
 server.addMiddlewareError(globalErrorHandler)
 

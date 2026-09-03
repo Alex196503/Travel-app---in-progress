@@ -27,6 +27,7 @@ model User{
   email_verification_token_expires_at DateTime?
   bookings Booking[]
   payment Payment[]
+  notifications Notifications[]
 }
 
 enum TripCategory {
@@ -59,6 +60,7 @@ model Trip {
   updatedAt        DateTime     @updatedAt
   bookings       Booking[]
   images           Image[]
+  notifications     Notifications[]
   @@map("trips")
 }
 
@@ -106,4 +108,16 @@ model Payment {
   updatedAt        DateTime     @updatedAt
   amount Decimal @db.Decimal(10, 2)
   status PaymentStatus @default(PENDING)
+}
+
+model Notifications{
+  id Int @id @default(autoincrement())
+  user_id Int
+  trip_id Int?
+  message String @db.Text
+  type String @db.VarChar(255)
+  createdAt DateTime @default(now())
+  was_read Boolean @default(false)
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  trip Trip? @relation(fields: [trip_id], references: [id], onDelete: Cascade)
 }
