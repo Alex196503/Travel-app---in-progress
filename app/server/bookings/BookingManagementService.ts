@@ -1,10 +1,16 @@
+import type { INotificationEventEmitter } from "~/events/NotificationEventEmitter"
 import { type PrismaClient } from "../../../generated/prisma/client"
 import { BadRequestError, NotFoundError } from "../auth/custom-errors"
 // Service dedicated exclusively to modification, update, and cancellation operations (PATCH) for the Booking entity.
 export class BookingManagementService {
   private prisma: PrismaClient
-  constructor(prisma: PrismaClient) {
+  private readonly notificationEmitter: INotificationEventEmitter
+  constructor(
+    prisma: PrismaClient,
+    notificationEmitter: INotificationEventEmitter
+  ) {
     this.prisma = prisma
+    this.notificationEmitter = notificationEmitter
   }
 
   async changeNumberOfSeats(
@@ -37,7 +43,7 @@ export class BookingManagementService {
         "Not enough available seats left for this trip"
       )
     }
-    await this.prisma.$transaction(async (tx) => {
+    let result = await this.prisma.$transaction(async (tx) => {
       let updatedBook = await tx.booking.update({
         where: { id: id_booking },
         data: {
@@ -68,8 +74,21 @@ export class BookingManagementService {
           "Not enough available seats left due to concurrent bookings."
         )
       }
-      return updatedBook.total_price
+      const newNotification = await tx.notifications.create({
+        data: {
+          user_id: bookingFound.user_id,
+          message: `Your booking seats have been updated to ${seats_booked}.`,
+          was_read: false,
+          trip_id: bookingFound.trip_id,
+          type: "Booking updated"
+        }
+      })
+      return { totalPrice: updatedBook.total_price, newNotification }
     })
+    this.notificationEmitter.emit(
+      "booking.seats_updated",
+      result.newNotification
+    )
     return { message: "Booking updated succesfully", success: true }
   }
 
@@ -96,7 +115,7 @@ export class BookingManagementService {
     if (Date.now() > startDate) {
       throw new BadRequestError("You trip has already begun!")
     }
-    await this.prisma.$transaction(async (tx) => {
+    let result = await this.prisma.$transaction(async (tx) => {
       let bookingResult = await tx.booking.updateMany({
         where: {
           id: id_booking
@@ -118,7 +137,18 @@ export class BookingManagementService {
           }
         }
       })
+      const newNotification = await tx.notifications.create({
+        data: {
+          user_id: bookingFound.user_id,
+          message: `Your booking ${bookingFound.id} has been cancelled!`,
+          was_read: false,
+          trip_id: bookingFound.trip_id,
+          type: "Booking cancelled"
+        }
+      })
+      return newNotification
     })
+    this.notificationEmitter.emit("booking.cancelled", result)
     return {
       success: true,
       message: "Booking cancelled succesfully!"

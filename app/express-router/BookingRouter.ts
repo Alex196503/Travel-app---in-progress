@@ -16,15 +16,18 @@ import { BookingQueryService } from "~/server/bookings/BookingQueryService"
 import { NodemailerService } from "~/server/bookings/email-helpers"
 import { BookingCreationService } from "~/server/bookings/BookingCreationService"
 import { BookingManagementService } from "~/server/bookings/BookingManagementService"
+import { notificationEventEmitter } from "~/events/NotificationEventEmitter"
 
 const nodemailerService = new NodemailerService()
 const bookingGetRequestsService = new BookingQueryService(prisma)
 const bookingPostRequestsService = new BookingCreationService(
   prisma,
-  nodemailerService
+  nodemailerService,
+  notificationEventEmitter
 )
 const bookingPatchRequestsService = new BookingManagementService(
-  prisma
+  prisma,
+  notificationEventEmitter
 )
 
 export const BookingRouter = express.Router()

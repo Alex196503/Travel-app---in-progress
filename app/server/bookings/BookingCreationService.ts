@@ -1,3 +1,4 @@
+import type { INotificationEventEmitter } from "~/events/NotificationEventEmitter"
 import { type PrismaClient } from "../../../generated/prisma/client"
 import { BadRequestError, NotFoundError } from "../auth/custom-errors"
 import type { IEmailService } from "./email-helpers"
@@ -5,7 +6,11 @@ import type { IEmailService } from "./email-helpers"
 export class BookingCreationService {
   private prisma: PrismaClient
   private emailService: IEmailService
-  constructor(prisma: PrismaClient, emailService: IEmailService) {
+  constructor(
+    prisma: PrismaClient,
+    emailService: IEmailService,
+    private readonly notificationEmitter: INotificationEventEmitter
+  ) {
     this.prisma = prisma
     this.emailService = emailService
   }
@@ -67,6 +72,17 @@ export class BookingCreationService {
       return newBooking
     })
 
+    const newNotification = await this.prisma.notifications.create({
+      data: {
+        type: "Booking Created",
+        message: `You have created a booking for the trip ${trip_id}. The trip will start on ${tripFound.start_date.toISOString().split("T")[0]} and will end on ${tripFound.end_date.toISOString().split("T")[0]}.`,
+        user_id: Number(user_id),
+        trip_id: Number(trip_id),
+        was_read: false
+      }
+    })
+
+    this.notificationEmitter.emit("booking.created", newNotification)
     setImmediate(async () => {
       try {
         if (result.user?.email) {

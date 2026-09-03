@@ -1,8 +1,13 @@
 import axios from "axios"
-import type { ReactNode } from "react"
+import { type ReactNode } from "react"
 import { Link, useLocation, useNavigate } from "react-router"
 import { api } from "~/axios/axios"
-import { useAuth, useModalBooking } from "~/custom-hooks/react-hooks"
+import {
+  useAuth,
+  useModalBooking,
+  useNotifications
+} from "~/custom-hooks/react-hooks"
+import NotificationDropdown from "~/routes/home/local_components/NotificationDropdown"
 
 export default function ApiNav({
   navTitle,
@@ -28,6 +33,11 @@ export default function ApiNav({
 }) {
   const navigate = useNavigate()
   const location = useLocation()
+  const {
+    unreadCount,
+    setNotificationDropdownStatus,
+    isOpenNotificationDropdown
+  } = useNotifications()
   const { setModalBookingsOpen, isModalBookingsOpen } =
     useModalBooking()
   const isCountriesApiPage = location.pathname === "/countries"
@@ -92,7 +102,27 @@ export default function ApiNav({
               <span>🛒 My Bookings</span>
             </button>
           )}
-          <div className="w-full sm:w-auto  grid grid-cols-2 gap-2">
+          {user && !isCountriesApiPage && (
+            <section className="relative">
+              <button
+                onClick={() =>
+                  setNotificationDropdownStatus((prev) => !prev)
+                }
+                className="relative p-2.5 rounded-xl bg-slate-800/40 border border-slate-700/50 hover:bg-slate-800 text-slate-300 hover:text-white transition-all cursor-pointer flex items-center justify-center"
+                title="Notifications"
+              >
+                <span className="text-base">✉️</span>
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center shadow-sm">
+                  {unreadCount}
+                </span>
+              </button>
+              {isOpenNotificationDropdown && <NotificationDropdown />}
+            </section>
+          )}
+          <div
+            className={`w-full sm:w-auto grid grid-cols-2 gap-2 ${isOpenNotificationDropdown ? "pointer-events-none opacity-60" : ""}`}
+          >
+            {" "}
             {user ? (
               <section className="w-full sm:w-auto flex items-center gap-3">
                 <a
@@ -137,7 +167,11 @@ export default function ApiNav({
             )}
           </div>
           <section
-            className="w-full sm:w-auto flex items-center justify-center gap-x-3 cursor-pointer py-2 sm:py-0 select-none"
+            className={`w-full sm:w-auto flex items-center justify-center gap-x-3 py-2 sm:py-0 select-none ${
+              isOpenNotificationDropdown
+                ? "cursor-not-allowed opacity-60 pointer-events-none"
+                : "cursor-pointer"
+            }`}
             onClick={() => setDark(!isDark)}
           >
             {children}

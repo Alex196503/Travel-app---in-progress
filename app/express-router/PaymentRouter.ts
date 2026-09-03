@@ -23,6 +23,7 @@ import {
   StripeProcessor,
   StripeRefundProvider
 } from "~/server/payments/PaymentActionService"
+import { notificationEventEmitter } from "~/events/NotificationEventEmitter"
 
 export type PaymentDetailsResponse = Prisma.PaymentGetPayload<{
   include: {
@@ -42,7 +43,8 @@ const paymentQueryService = new PaymentQueryService(prisma)
 const paymentActionService = new PaymentActionService(
   prisma,
   stripeProcessor,
-  stripeProvider
+  stripeProvider,
+  notificationEventEmitter
 )
 const paymentWebhookService = new PaymentWebhookService(
   prisma,

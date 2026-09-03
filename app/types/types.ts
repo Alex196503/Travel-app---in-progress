@@ -21,6 +21,16 @@ export interface Currency {
   symbol: string
 }
 
+export type NotificationItem = {
+  id: number
+  user_id: number
+  trip_id: number | null
+  message: string
+  type: string
+  createdAt: string | Date
+  was_read: boolean
+}
+
 export interface ThemeContextProps {
   isDark: boolean
   setDark: React.Dispatch<React.SetStateAction<boolean>>
@@ -29,6 +39,17 @@ export interface ThemeContextProps {
 export interface ModalContextProps {
   isModalBookingsOpen: boolean
   setModalBookingsOpen: React.Dispatch<React.SetStateAction<boolean>>
+}
+
+export interface NotificationContextProps {
+  notifications: NotificationItem[]
+  unreadCount: number
+  isOpenNotificationDropdown: boolean
+  setNotificationDropdownStatus: React.Dispatch<
+    React.SetStateAction<boolean>
+  >
+  markAsRead: (id: number) => {}
+  markAllAsRead: () => void
 }
 
 export type InputProps = {
@@ -177,7 +198,7 @@ export interface CreateSessionParams {
   tripId: number
   successUrl: string
   cancelUrl: string
-  userEmail : string
+  userEmail: string
 }
 
 export interface PaymentApiResponse {

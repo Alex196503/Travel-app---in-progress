@@ -8,6 +8,7 @@ import {
   NotFoundError
 } from "../auth/custom-errors"
 import type { PrismaClient } from "../../../generated/prisma/client"
+import type { INotificationEventEmitter } from "~/events/NotificationEventEmitter"
 export const stripe = new Stripe(process.env.SECRET_STRIPE_KEY || "")
 
 export const formatAmountForGateway = (
@@ -83,14 +84,17 @@ export class PaymentActionService {
   private prisma: PrismaClient
   private paymentProcessor: IPaymentProcessor
   private paymentRefundProvider: IPaymentRefundProvider
+  private readonly notificationEmitter: INotificationEventEmitter
   constructor(
     prisma: PrismaClient,
     paymentProcessor: IPaymentProcessor,
-    stripeRefundProvider: IPaymentRefundProvider
+    stripeRefundProvider: IPaymentRefundProvider,
+    notificationEmitter: INotificationEventEmitter
   ) {
     this.prisma = prisma
     this.paymentProcessor = paymentProcessor
     this.paymentRefundProvider = stripeRefundProvider
+    this.notificationEmitter = notificationEmitter
   }
   async processBookingPayment(bookingId: string, userId: string) {
     const booking = await this.prisma.booking.findUnique({
@@ -156,7 +160,7 @@ export class PaymentActionService {
       )
     }
 
-    await this.prisma.$transaction(async (tx) => {
+    let result = await this.prisma.$transaction(async (tx) => {
       await tx.booking.update({
         where: { id: Number(bookingId) },
         data: { status: "CANCELLED" }
@@ -166,7 +170,9 @@ export class PaymentActionService {
         data: { status: "CANCELLED" }
       })
       if (bookingsUpdated.count === 0) {
-        throw new Error("Could not update bookings in your DB!")
+        throw new Error(
+          "Could not update payment status to cancelled!"
+        )
       }
       await tx.trip.update({
         where: { id: booking.trip_id },
@@ -174,7 +180,17 @@ export class PaymentActionService {
           available_seats: { increment: booking.seats_booked }
         }
       })
+      let newNotification = await tx.notifications.create({
+        data: {
+          user_id: Number(userId),
+          message: `Your booking #${bookingId} has been cancelled successfully!`,
+          type: "BOOKING_CANCELLED",
+          was_read: false
+        }
+      })
+      return newNotification
     })
+    this.notificationEmitter.emit("booking.cancelled", result)
     return { message: "Booking cancelled succesfully!" }
   }
 

@@ -12,6 +12,7 @@ import "./app.css"
 import {
   AuthContext,
   ModalContext,
+  NotificationContext,
   ThemeContext
 } from "./react-contexts/context"
 import { useEffect, useState } from "react"
@@ -24,6 +25,7 @@ import { api } from "./axios/axios"
 import { accessTokenStorage } from "./utils/frontend-utils"
 import ApiNav from "./routes/api/local_components/ApiNav"
 import { IoMoon, IoSunny } from "react-icons/io5"
+import { NotificationProvider } from "./context-providers/NotificationContext"
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -101,36 +103,38 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <AuthContext.Provider
         value={{ accessToken, setAccessToken, user, setUser }}
       >
-        <ModalContext.Provider
-          value={{ setModalBookingsOpen, isModalBookingsOpen }}
-        >
-          <html lang="en" className={isDark ? "dark" : ""}>
-            <head>
-              <meta charSet="utf-8" />
-              <meta
-                name="viewport"
-                content="width=device-width, initial-scale=1"
-              />
-              <Meta />
-              <Links />
-            </head>
-            <body className="bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-50 transition-colors duration-200">
-              <ApiNav
-                navTitle="Visit a new country"
-                user={user}
-                isDark={isDark}
-                setDark={setDark}
-                bgColor={isDark ? "Dark" : "Light"}
-              >
-                {" "}
-                {isDark ? <IoMoon /> : <IoSunny />}{" "}
-              </ApiNav>
-              {children}
-              <ScrollRestoration />
-              <Scripts />
-            </body>
-          </html>
-        </ModalContext.Provider>
+        <NotificationProvider>
+          <ModalContext.Provider
+            value={{ setModalBookingsOpen, isModalBookingsOpen }}
+          >
+            <html lang="en" className={isDark ? "dark" : ""}>
+              <head>
+                <meta charSet="utf-8" />
+                <meta
+                  name="viewport"
+                  content="width=device-width, initial-scale=1"
+                />
+                <Meta />
+                <Links />
+              </head>
+              <body className="bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-50 transition-colors duration-200">
+                <ApiNav
+                  navTitle="Visit a new country"
+                  user={user}
+                  isDark={isDark}
+                  setDark={setDark}
+                  bgColor={isDark ? "Dark" : "Light"}
+                >
+                  {" "}
+                  {isDark ? <IoMoon /> : <IoSunny />}{" "}
+                </ApiNav>
+                {children}
+                <ScrollRestoration />
+                <Scripts />
+              </body>
+            </html>
+          </ModalContext.Provider>
+        </NotificationProvider>
       </AuthContext.Provider>
     </ThemeContext.Provider>
   )
