@@ -1,5 +1,5 @@
 # Tourism application
-Info:(to be completed / done)
+Info:(to be completed / done), import the CRON file in the ts server to ensure it works
 
 
 ## Database schema
