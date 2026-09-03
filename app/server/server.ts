@@ -13,6 +13,7 @@ import { PasswordRouter } from "~/express-router/auth/PasswordRouter"
 import { ProfileRouter } from "~/express-router/ProfileRouter"
 import { TripRouter } from "~/express-router/TripRouter"
 import { BookingRouter } from "~/express-router/BookingRouter"
+import "../node-services/cron-job-trips"
 import {
   PaymentRouter,
   webhookHandler
@@ -74,7 +75,7 @@ server.addRouter("/api/profile", ProfileRouter)
 server.addRouter("/api/trips", TripRouter)
 server.addRouter("/api/bookings", BookingRouter)
 server.addRouter("/api/payments", PaymentRouter)
-server.addRouter("/api/notifications", NotificationRouter);
+server.addRouter("/api/notifications", NotificationRouter)
 server.useMiddleware(routeNotFoundHandler)
 server.addMiddlewareError(globalErrorHandler)
 
