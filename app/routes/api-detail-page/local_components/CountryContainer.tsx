@@ -1,5 +1,5 @@
 import { Link } from "react-router"
-import type { RawCountry } from "~/types/types"
+import type { RawCountry } from "~/types/common-types"
 export default function CountryContainer({
   foundCountry
 }: {

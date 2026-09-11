@@ -5,7 +5,7 @@ import {
 } from "express"
 import "dotenv/config"
 import { JwtTokenService } from "../server/auth/AuthService"
-import { type RegisterResponse } from "~/types/types"
+import type { RegisterResponse } from "~/types/auth-types"
 let tokenService = new JwtTokenService()
 
 // Middleware to protect private routes. It extracts the JWT from the secure cookie, verifies it, and attaches the payload to req.user before moving to the next handler.

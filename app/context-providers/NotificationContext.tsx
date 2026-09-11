@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react"
 import { api } from "~/axios/axios"
-import { useAuth } from "~/custom-hooks/react-hooks"
+import { useAuth } from "~/custom-hooks/auth-hooks"
 import { NotificationContext } from "~/react-contexts/context"
-import type { NotificationItem } from "~/types/types"
+import type { NotificationItem } from "~/types/feature-types"
 import { EventSourcePolyfill } from "event-source-polyfill"
 
 export const NotificationProvider: React.FC<{

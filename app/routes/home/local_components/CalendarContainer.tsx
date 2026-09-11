@@ -3,7 +3,7 @@ import type {
   CalendarDay,
   FormattedBookingForCalendar,
   UserBookingRow
-} from "~/types/types"
+} from "~/types/feature-types"
 
 export function generateMatrix(year: number, month: number) {
   const firstDayOfMonth = new Date(year, month, 1)
@@ -55,6 +55,25 @@ export function generateMatrix(year: number, month: number) {
   return days
 }
 
+//Helper function to convert DB date into the correct timeZone(Europe / Bucharest)
+const toDateKeyInTimeZone = (
+  date: Date,
+  timeZone = "Europe/Bucharest"
+) => {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit"
+  }).formatToParts(date)
+  const map = Object.fromEntries(
+    parts
+      .filter((part) => part.type !== "literal")
+      .map((part) => [part.type, part.value])
+  )
+  return `${map.year}-${map.month}-${map.day}`
+}
+
 export function CalendarContainer({
   bookings
 }: {
@@ -91,7 +110,7 @@ export function CalendarContainer({
       const currentIterDate = new Date(startDate)
       const endDate = new Date(formattedBookings[i].endDate)
       while (currentIterDate <= endDate) {
-        let dateKey = currentIterDate.toISOString().split("T")[0]
+        const dateKey = toDateKeyInTimeZone(currentIterDate)
         if (!map.has(dateKey)) {
           map.set(dateKey, [])
         }
@@ -136,7 +155,7 @@ export function CalendarContainer({
 
         <section className="grid grid-cols-7 gap-1.5">
           {calendarDays.map((dayItem, index) => {
-            const dateKey = dayItem.date.toISOString().split("T")[0]
+            const dateKey = toDateKeyInTimeZone(dayItem.date)
             let bookingsForToday = bookingsMap.get(dateKey) || []
             return (
               <section

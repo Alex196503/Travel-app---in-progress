@@ -1,11 +1,11 @@
 import axios from "axios"
 import { useState } from "react"
 import { api } from "~/axios/axios"
-import type { UserBookingRow } from "~/types/types"
+import type { UserBookingRow } from "~/types/feature-types"
 import { ToastContainer } from "react-toastify"
 import { toast } from "react-toastify"
-import { useCountdown } from "~/custom-hooks/react-hooks"
 import StripePaymentButton from "~/routes/trip-detail-page/local_components/StripePaymentButton"
+import { useCountdown } from "~/custom-hooks/utility-hooks"
 
 export const BookingModalCard = ({
   booking,

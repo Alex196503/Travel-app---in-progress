@@ -1,4 +1,4 @@
-import type { InputProps } from "~/types/types"
+import { type InputProps } from "~/types/common-types"
 
 export const TextInput = ({
   label,

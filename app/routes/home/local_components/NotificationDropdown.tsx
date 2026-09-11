@@ -1,4 +1,4 @@
-import { useNotifications } from "~/custom-hooks/react-hooks"
+import { useNotifications } from "~/custom-hooks/context-hooks"
 
 export default function NotificationDropdown() {
   const {

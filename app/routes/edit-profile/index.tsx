@@ -1,10 +1,7 @@
 import { getMeta } from "~/helpers/helpers"
-import {
-  useAuth,
-  useFormToast,
-  useThemeContext
-} from "~/custom-hooks/react-hooks"
-import { IoMoon, IoSunny } from "react-icons/io5"
+import { useThemeContext } from "~/custom-hooks/context-hooks"
+import { useFormToast } from "~/custom-hooks/utility-hooks"
+import { useAuth } from "~/custom-hooks/auth-hooks"
 import { TextInput } from "../register/local_components/InputText"
 import { FileInput } from "../register/local_components/FileInput"
 import {
@@ -12,10 +9,6 @@ import {
   useFetcher,
   type LoaderFunctionArgs
 } from "react-router"
-import {
-  hasNoProfileChanges,
-  requireAuthOnServer
-} from "~/utils/frontend-utils"
 import type { Route } from "./+types"
 import { useEffect, useState } from "react"
 import { toast } from "react-toastify"
@@ -23,10 +16,10 @@ import { ToastContainer } from "react-toastify"
 import { EditProfileSchema } from "~/utils/validation/zod-validation"
 import axios from "axios"
 import { api } from "~/axios/axios"
-import {
-  type ProfileRouteResponse,
-  type AuthenticatedUser
-} from "~/types/types"
+import type { ProfileRouteResponse } from "~/types/auth-types"
+import { type AuthenticatedUser } from "~/types/auth-types"
+import { requireAuthOnServer } from "~/utils/frontend-utils/auth-guards"
+import { hasNoProfileChanges } from "~/utils/frontend-utils/profile-utils"
 export const meta = () => getMeta("Edit Profile page")
 
 export async function loader({ request }: LoaderFunctionArgs) {

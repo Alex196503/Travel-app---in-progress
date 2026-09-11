@@ -1,4 +1,4 @@
-import type { InputFile } from "~/types/types"
+import { type InputFile } from "~/types/common-types"
 import { useEffect, useRef, useState } from "react"
 export const FileInput = ({
   label,

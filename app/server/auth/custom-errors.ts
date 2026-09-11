@@ -29,3 +29,11 @@ export class NotFoundError extends Error {
     this.name = "NotFoundError"
   }
 }
+
+// Error class for handling request conflits ->(HTTP status 409)
+export class Conflict extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = "Conflict"
+  }
+}

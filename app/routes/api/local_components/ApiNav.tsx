@@ -3,10 +3,10 @@ import { type ReactNode } from "react"
 import { Link, useLocation, useNavigate } from "react-router"
 import { api } from "~/axios/axios"
 import {
-  useAuth,
   useModalBooking,
   useNotifications
-} from "~/custom-hooks/react-hooks"
+} from "~/custom-hooks/context-hooks"
+import { useAuth } from "~/custom-hooks/auth-hooks"
 import NotificationDropdown from "~/routes/home/local_components/NotificationDropdown"
 
 export default function ApiNav({

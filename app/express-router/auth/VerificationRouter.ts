@@ -5,7 +5,7 @@ import {
 } from "express"
 import express from "express"
 import { prisma } from "../../../prisma/prisma"
-import { type RegisterResponse } from "~/types/types"
+import type { RegisterResponse } from "~/types/auth-types"
 import { VerificationService } from "~/server/auth/VerificationService"
 import {
   SHA256TokenCrypto,

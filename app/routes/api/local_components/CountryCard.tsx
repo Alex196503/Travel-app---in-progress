@@ -1,4 +1,4 @@
-import type { RawCountry } from "~/types/types"
+import type { RawCountry } from "~/types/common-types"
 
 export const CountryCard = ({
   country,

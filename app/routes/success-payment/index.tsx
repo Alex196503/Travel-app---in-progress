@@ -7,8 +7,8 @@ import {
 } from "react-router"
 import { api } from "~/axios/axios"
 import { getMeta } from "~/helpers/helpers"
-import type { PaymentApiResponse } from "~/types/types"
-import { requireAuthOnServer } from "~/utils/frontend-utils"
+import type { PaymentApiResponse } from "~/types/feature-types"
+import { requireAuthOnServer } from "~/utils/frontend-utils/auth-guards"
 
 export const meta = () => getMeta("Success payment page")
 

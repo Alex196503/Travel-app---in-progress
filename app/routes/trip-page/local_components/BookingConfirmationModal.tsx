@@ -1,8 +1,6 @@
 import { toast } from "react-toastify"
-import {
-  bookingTripFetcher,
-  sanitizeSeatsValue
-} from "~/utils/frontend-utils"
+import { bookingTripFetcher } from "~/utils/frontend-utils/booking-utils"
+import { sanitizeSeatsValue } from "~/utils/frontend-utils/booking-utils"
 
 export const BookingConfirmationModal = ({
   setModalOpen,

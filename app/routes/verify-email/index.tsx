@@ -2,7 +2,7 @@ import axios from "axios"
 import { useEffect } from "react"
 import { Link, useLoaderData } from "react-router"
 import { api } from "~/axios/axios"
-import { useAuth } from "~/custom-hooks/react-hooks"
+import { useAuth } from "~/custom-hooks/auth-hooks"
 export async function loader({ request }: { request: Request }) {
   const url = new URL(request.url)
   const token = url.searchParams.get("token") || ""

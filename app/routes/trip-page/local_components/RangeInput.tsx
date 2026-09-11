@@ -1,7 +1,5 @@
-import {
-  handleParamChange,
-  sanitizePriceValue
-} from "~/utils/frontend-utils"
+import { sanitizePriceValue } from "~/utils/frontend-utils/trip-utils"
+import { handleParamChange } from "~/utils/frontend-utils/search-param-utils"
 import { type SetURLSearchParams } from "react-router"
 export const RangeInput = ({
   min,

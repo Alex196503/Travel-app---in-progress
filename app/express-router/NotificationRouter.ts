@@ -6,7 +6,7 @@ import {
 import express from "express"
 import { authentificationMiddleware } from "~/middleware/authMiddleware"
 import { prisma } from "../../prisma/prisma"
-import type { NotificationItem } from "~/types/types"
+import type { NotificationItem } from "~/types/feature-types"
 import { sseManager } from "~/node-services/SSEManager"
 import { NotificationQueryService } from "~/server/notifications/NotificationQueryService"
 import { NotFoundError } from "~/server/auth/custom-errors"
@@ -52,10 +52,14 @@ NotificationRouter.get(
     res.setHeader("Content-Type", "text/event-stream")
     res.setHeader("Cache-Control", "no-cache")
     res.setHeader("Connection", "keep-alive")
+    const heartBeat = setInterval(() => {
+      res.write(":ping\n\n")
+    }, 20000)
     const userId = Number(req.user?.id)
     sseManager.addClient(userId, res)
     req.on("close", () => {
       sseManager.removeClient(userId)
+      clearInterval(heartBeat)
       res.end()
     })
   }

@@ -24,6 +24,7 @@ import {
   StripeRefundProvider
 } from "~/server/payments/PaymentActionService"
 import { notificationEventEmitter } from "~/events/NotificationEventEmitter"
+import { idSchema } from "~/utils/validation/zod-validation"
 
 export type PaymentDetailsResponse = Prisma.PaymentGetPayload<{
   include: {
@@ -154,14 +155,15 @@ PaymentRouter.get(
     next: NextFunction
   ) => {
     try {
-      const bookingId = req.params.bookingId
+      const parseResult = idSchema.safeParse(req.params.bookingId)
       const userId = req.user?.id
-      if (!bookingId) {
+      if (!parseResult.success) {
         return res.status(400).json({
           success: false,
           message: "Booking ID is required!"
         })
       }
+      const bookingId = parseResult.data.toString()
       const payment = await paymentQueryService.showPaymentDetails(
         userId as string,
         bookingId

@@ -1,5 +1,5 @@
 import { EventEmitter } from "events"
-import type { NotificationItem } from "~/types/types"
+import type { NotificationItem } from "~/types/feature-types"
 
 export interface INotificationEventEmitter {
   emit(

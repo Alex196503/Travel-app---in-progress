@@ -1,6 +1,7 @@
 import fs from "fs/promises"
 import path from "node:path"
-import type { RawCountry } from "~/types/types"
+import type { RawCountry } from "~/types/common-types"
+
 import {
   type Response,
   type Request,

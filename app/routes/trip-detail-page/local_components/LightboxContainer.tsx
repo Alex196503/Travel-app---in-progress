@@ -1,5 +1,4 @@
-import type { TripWithImages } from "~/types/types"
-
+import type { TripWithImages } from "~/types/trip-types"
 export const LightboxContainer = ({
   setIsLightBoxOpen,
   trip,
