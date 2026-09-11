@@ -11,8 +11,8 @@ import type { Route } from "./+types"
 import { api } from "~/axios/axios"
 import axios from "axios"
 import { useEffect } from "react"
-import { redirectIfAuthenticated } from "~/utils/frontend-utils"
-import { useCountdown } from "~/custom-hooks/react-hooks"
+import { useCountdown } from "~/custom-hooks/utility-hooks"
+import { redirectIfAuthenticated } from "~/utils/frontend-utils/auth-guards"
 
 export async function loader({ request }: LoaderFunctionArgs) {
   return redirectIfAuthenticated(request) || null

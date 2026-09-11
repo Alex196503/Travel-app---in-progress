@@ -12,6 +12,7 @@ import type {
   TripCategory
 } from "../../generated/prisma/client"
 import { authentificationMiddleware } from "~/middleware/authMiddleware"
+import { idSchema } from "~/utils/validation/zod-validation"
 export const TripRouter = express.Router()
 export const tripService = new TripsService(prisma)
 export type TripWithImages = Trip & {
@@ -67,15 +68,27 @@ TripRouter.get(
     }
   }
 )
+
 TripRouter.get(
   "/:id",
   async (
     req: Request<{ id: string }>,
-    res: Response<{ trip: TripWithImages; message: string }>,
+    res: Response<{
+      trip?: TripWithImages
+      message: string
+      success?: boolean
+    }>,
     next: NextFunction
   ) => {
     try {
-      const tripId = req.params.id
+      const resultSchema = idSchema.safeParse(req.params.id)
+      if (!resultSchema.success) {
+        return res.status(400).json({
+          success: false,
+          message: "A valid trip ID is required."
+        })
+      }
+      let tripId = resultSchema.data.toString()
       let trip = await tripService.findSpecificTrip(tripId)
       return res.status(200).json({ trip, message: "Trip found!" })
     } catch (error) {

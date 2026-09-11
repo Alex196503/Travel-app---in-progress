@@ -11,7 +11,7 @@ import { ResetPasswordSchema } from "~/utils/validation/zod-validation"
 import { api } from "~/axios/axios"
 import { useEffect } from "react"
 import { toast, ToastContainer } from "react-toastify"
-import type { ExpressErrorResponse } from "~/types/types"
+import { type ExpressErrorResponse } from "~/types/auth-types"
 
 export async function loader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url)

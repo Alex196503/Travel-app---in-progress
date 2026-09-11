@@ -1,6 +1,6 @@
 import type { Response } from "express"
 import { notificationEventEmitter } from "~/events/NotificationEventEmitter"
-import type { NotificationItem } from "~/types/types"
+import type { NotificationItem } from "~/types/feature-types"
 
 // Acts as an event listener for application events and pushes updates to connected users, offering encapsulation
 class SSEManager {

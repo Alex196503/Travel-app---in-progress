@@ -1,23 +1,19 @@
 import { api } from "~/axios/axios"
 import type { Route } from "./+types"
-import type { TripsResponse } from "~/types/types"
+import type { TripsResponse } from "~/types/trip-types"
 import axios from "axios"
 import { useLoaderData, useSearchParams } from "react-router"
 import { TripCard } from "./local_components/TripCard"
 import { GeneralDropdown } from "./local_components/GeneralDropdown"
 import { getMeta } from "~/helpers/helpers"
 import { ToastContainer } from "react-toastify"
-import {
-  handleParamChange,
-  requireAuthOnServer
-} from "~/utils/frontend-utils"
+import { handleParamChange } from "~/utils/frontend-utils/search-param-utils"
+import { requireAuthOnServer } from "~/utils/frontend-utils/auth-guards"
 import { CountryCodeSearcher } from "./local_components/CountryCodeSearcher"
 import { RangeInput } from "./local_components/RangeInput"
 import { SortDropdown } from "./local_components/SortDropdown"
-import {
-  useModalBooking,
-  useUserBookings
-} from "~/custom-hooks/react-hooks"
+import { useModalBooking } from "~/custom-hooks/context-hooks"
+import { useUserBookings } from "~/custom-hooks/user-hooks"
 
 import BookingCartModal from "./local_components/BookingCartModal"
 

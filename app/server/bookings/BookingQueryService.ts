@@ -1,4 +1,4 @@
-import type { UserBookingRow } from "~/types/types"
+import type { UserBookingRow } from "~/types/feature-types"
 import { type PrismaClient } from "../../../generated/prisma/client"
 
 // Service dedicated exclusively to read operations (GET) and queries for the Booking entity. It also deals with retrieving statistics (e.g., total bookings count, status distribution, total spent)

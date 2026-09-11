@@ -91,3 +91,16 @@ export const EditProfileSchema = z.object({
     .optional()
     .or(z.literal(""))
 })
+
+// Validates numeric IDs received from route params, query params, or request bodies, such as `/reviews/10`.
+export const idSchema = z.coerce
+  .number()
+  .int()
+  .positive()
+  .max(Number.MAX_SAFE_INTEGER)
+
+export const createReviewSchema = z.object({
+  trip_id: idSchema,
+  rating: z.coerce.number().int().min(1).max(5),
+  comment: z.string().trim().min(1).max(5000)
+})

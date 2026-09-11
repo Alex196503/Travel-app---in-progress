@@ -1,10 +1,11 @@
 import { Link } from "react-router"
 import { getMeta } from "~/helpers/helpers"
 
-export const meta = getMeta(
-  "Not found page",
-  "The page you were looking for might've been deleted or replaced!"
-)
+export const meta = () =>
+  getMeta(
+    "Not found page",
+    "The page you were looking for might've been deleted or replaced!"
+  )
 
 export default function NotFoundPage() {
   return (

@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { Link } from "react-router"
-import { type TripWithImages } from "~/types/types"
+import type { TripWithImages } from "~/types/trip-types"
 import { BookingConfirmationModal } from "./BookingConfirmationModal"
 export const TripCard = ({
   title,

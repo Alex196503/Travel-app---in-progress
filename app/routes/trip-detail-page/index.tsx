@@ -2,23 +2,31 @@ import { getMeta } from "~/helpers/helpers"
 import type { Route } from "./+types"
 import {
   calculateDuration,
-  getCountryName,
-  requireAuthOnServer
-} from "~/utils/frontend-utils"
+  getCountryName
+} from "~/utils/frontend-utils/trip-utils"
+import { requireAuthOnServer } from "~/utils/frontend-utils/auth-guards"
 import { api } from "~/axios/axios"
 import axios from "axios"
-import { Link, useLoaderData } from "react-router"
-import type { TripWithImages, UserBookingRow } from "~/types/types"
+import { Link, useLoaderData, useParams } from "react-router"
+import type {
+  ReviewsResponse,
+  UserBookingRow
+} from "~/types/feature-types"
+import { type TripWithImages } from "~/types/trip-types"
 import React, { useEffect, useState } from "react"
 import { LightboxContainer } from "./local_components/LightboxContainer"
 import { BookingConfirmationModal } from "../trip-page/local_components/BookingConfirmationModal"
-import { ToastContainer } from "react-toastify"
-import {
-  useModalBooking,
-  useUserBookings
-} from "~/custom-hooks/react-hooks"
+import { toast, ToastContainer } from "react-toastify"
+import { useModalBooking } from "~/custom-hooks/context-hooks"
+import { useUserBookings } from "~/custom-hooks/user-hooks"
+import { useAuth } from "~/custom-hooks/auth-hooks"
 import BookingCartModal from "../trip-page/local_components/BookingCartModal"
-import StripePaymentButton from "./local_components/StripePaymentButton"
+import {
+  ReviewCard,
+  type Review
+} from "./local_components/ReviewCard"
+import { onDeleteReview } from "~/utils/frontend-utils/review-utils"
+
 export const meta = () =>
   getMeta(
     "Trip details page",
@@ -32,11 +40,38 @@ export async function loader({ params, request }: Route.LoaderArgs) {
     if (!tripID) {
       throw new Response("Trip ID not provided", { status: 400 })
     }
-    const res = await api.get<{
-      trip: TripWithImages
-      message: string
-    }>(`/trips/${tripID}`)
-    return res.data.trip
+    const cookieHeaders = request.headers.get("cookie") || ""
+    const [tripResponse, reviewsResponse] = await Promise.all([
+      api.get<{
+        trip: TripWithImages
+        message: string
+      }>(`/trips/${tripID}`, {
+        headers: { cookie: cookieHeaders }
+      }),
+      api.get<ReviewsResponse>(`/reviews/trip/${tripID}`, {
+        headers: { cookie: cookieHeaders }
+      })
+    ])
+
+    const reviews: Review[] = reviewsResponse.data.reviews.map(
+      (review) => ({
+        id: review.id,
+        userId: review.user.id,
+        name: review.user.name,
+        date: new Date(review.created_at).toLocaleDateString(
+          "en-US",
+          { year: "numeric", month: "long", day: "numeric" }
+        ),
+        rating: review.rating,
+        comment: review.comment
+      })
+    )
+
+    return {
+      trip: tripResponse.data.trip,
+      reviews,
+      averageRating: reviewsResponse.data.averageRating
+    }
   } catch (error) {
     if (axios.isAxiosError(error)) {
       const status = error.response?.status || 500
@@ -52,8 +87,11 @@ export async function loader({ params, request }: Route.LoaderArgs) {
 }
 
 export default function TripDetailPage() {
-  let trip = useLoaderData<typeof loader>()
+  let { trip, reviews, averageRating } =
+    useLoaderData<typeof loader>()
+
   const [activeImage, setActiveImage] = useState<string | null>(null)
+  const [existingReviews, setReviews] = useState(reviews)
   const [isModalOpen, setModalOpen] = useState(false)
   const [previewUrl, setPreviewURL] = useState<string | null>(null)
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -61,6 +99,7 @@ export default function TripDetailPage() {
   const [currentNumberOfSeats, setCurrentNumberOfSeats] = useState(1)
   const { isModalBookingsOpen, setModalBookingsOpen } =
     useModalBooking()
+  const { user } = useAuth()
 
   const openLightbox = (url: string, index: number) => {
     setActiveImage(url)
@@ -78,12 +117,17 @@ export default function TripDetailPage() {
   }
 
   const {
-    bookings,
     bookingsCounter,
+    bookings,
     isLoading,
-    error,
     updateBookingStatus
   } = useUserBookings(isModalBookingsOpen)
+
+  const hasAlreadyReviewed = reviews.some(
+    (review) => review.userId === user?.id
+  )
+  const canCreateReview = Boolean(user?.id && !hasAlreadyReviewed)
+
   const goPrev = (e: React.MouseEvent) => {
     e.stopPropagation()
     if (!trip.images || trip.images.length <= 0) return
@@ -151,6 +195,51 @@ export default function TripDetailPage() {
               {trip.description}
             </p>
           </article>
+          <section className="mt-10 space-y-5">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+              <div className="flex flex-col gap-2">
+                <h2 className="text-xl font-semibold">Reviews</h2>
+                <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                  What travelers say about this experience
+                </p>
+              </div>
+              <div className="flex flex-wrap items-center gap-3 text-sm text-zinc-600 dark:text-zinc-300">
+                <div className="flex items-center gap-2">
+                  <span className="font-semibold text-amber-500">
+                    {existingReviews.length > 0
+                      ? averageRating
+                      : "0.0"}
+                  </span>
+                  <span className="text-sm font-bold text-gray-500">
+                    score
+                  </span>
+                  <span>({existingReviews.length} reviews)</span>
+                </div>
+                {canCreateReview && (
+                  <Link
+                    to={`/trips/${trip.id}/reviews/form`}
+                    className="rounded-lg cursor-pointer bg-emerald-600 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-emerald-700"
+                  >
+                    Go to review creation page
+                  </Link>
+                )}
+              </div>
+            </div>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              {existingReviews.map((review) => (
+                <ReviewCard
+                  review={review}
+                  key={review.id}
+                  avatar={user?.avatar}
+                  tripId={trip.id}
+                  canDelete={review.userId === user?.id}
+                  canEdit={review.userId === user?.id}
+                  setReviews={setReviews}
+                  onDelete={onDeleteReview}
+                />
+              ))}
+            </div>
+          </section>
         </div>
         <div className="lg:col-span-1">
           <div className="sticky top-24 p-6 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-xl space-y-6">

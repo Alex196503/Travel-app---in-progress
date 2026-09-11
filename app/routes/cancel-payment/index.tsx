@@ -8,8 +8,8 @@ import {
 import { toast } from "react-toastify"
 import { api } from "~/axios/axios"
 import { ToastContainer } from "react-toastify"
-import { requireAuthOnServer } from "~/utils/frontend-utils"
 import { getMeta } from "~/helpers/helpers"
+import { requireAuthOnServer } from "~/utils/frontend-utils/auth-guards"
 
 export const meta = () => getMeta("Cancelled payment page")
 

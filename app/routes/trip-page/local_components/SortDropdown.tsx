@@ -1,5 +1,5 @@
 import type { SetURLSearchParams } from "react-router"
-import { handleParamChange } from "~/utils/frontend-utils"
+import { handleParamChange } from "~/utils/frontend-utils/search-param-utils"
 
 export const SortDropdown = ({
   searchParams,

@@ -1,4 +1,4 @@
-import type { UpdateProfileInput } from "~/types/types"
+import type { UpdateProfileInput } from "~/types/auth-types"
 import { type PrismaClient } from "../../generated/prisma/client"
 import { UnauthorizedError } from "./auth/custom-errors"
 import type { PasswordHasher } from "./auth/security-helpers"

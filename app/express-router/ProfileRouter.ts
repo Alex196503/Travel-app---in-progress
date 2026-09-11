@@ -6,7 +6,7 @@ import {
 import { prisma } from "../../prisma/prisma"
 import express from "express"
 import { authentificationMiddleware } from "~/middleware/authMiddleware"
-import type { ProfileRouteResponse } from "~/types/types"
+import type { ProfileRouteResponse } from "~/types/auth-types"
 import {
   EditProfileSchema,
   FileValidationSchema

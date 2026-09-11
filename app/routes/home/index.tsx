@@ -1,13 +1,14 @@
-import { useAuth, useCountdown } from "~/custom-hooks/react-hooks"
+import { useAuth } from "~/custom-hooks/auth-hooks"
 import { getMeta } from "~/helpers/helpers"
 import { useLoaderData, type LoaderFunctionArgs } from "react-router"
-import { requireAuthOnServer } from "~/utils/frontend-utils"
 import axios from "axios"
 import { toast, ToastContainer } from "react-toastify"
 import { api } from "~/axios/axios"
 import { useState } from "react"
 import { CalendarContainer } from "./local_components/CalendarContainer"
-import { type UserBookingRow } from "~/types/types"
+import { type UserBookingRow } from "~/types/feature-types"
+import { useCountdown } from "~/custom-hooks/utility-hooks"
+import { requireAuthOnServer } from "~/utils/frontend-utils/auth-guards"
 export const meta = () => getMeta("Home")
 
 export async function loader({ request }: LoaderFunctionArgs) {

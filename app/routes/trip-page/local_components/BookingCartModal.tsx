@@ -1,4 +1,4 @@
-import { type UserBookingRow } from "~/types/types"
+import { type UserBookingRow } from "~/types/feature-types"
 import { BookingModalCard } from "./BookingModalCard"
 import { useState } from "react"
 

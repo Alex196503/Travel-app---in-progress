@@ -26,6 +26,7 @@ model User{
   email_verification_token String? @db.Text
   email_verification_token_expires_at DateTime?
   bookings Booking[]
+  review Review[]
   payment Payment[]
   notifications Notifications[]
 }
@@ -58,9 +59,10 @@ model Trip {
   end_date         DateTime     @db.Timestamp(0)
   createdAt        DateTime     @default(now())
   updatedAt        DateTime     @updatedAt
-  bookings       Booking[]
+  bookings          Booking[]
   images           Image[]
   notifications     Notifications[]
+  review Review[]
   @@map("trips")
 }
 
@@ -85,6 +87,7 @@ model Booking {
   user User @relation(fields: [user_id], references: [id], onDelete: Restrict)
   trip Trip @relation(fields: [trip_id], references: [id], onDelete: Restrict)
   payment Payment[]
+  review Review[]
   @@unique([user_id, trip_id])
   @@map("bookings")
 }
@@ -120,4 +123,18 @@ model Notifications{
   was_read Boolean @default(false)
   user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
   trip Trip? @relation(fields: [trip_id], references: [id], onDelete: Cascade)
+}
+
+model Review {
+  id         Int      @id @default(autoincrement())
+  rating     Int      
+  comment    String  
+  user_id    Int
+  trip_id    Int
+  booking_id Int      @unique 
+  user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  trip       Trip     @relation(fields: [trip_id], references: [id], onDelete: Cascade)
+  booking    Booking  @relation(fields: [booking_id], references: [id], onDelete: Cascade)
+  created_at DateTime @default(now())
+  @@map("reviews")
 }

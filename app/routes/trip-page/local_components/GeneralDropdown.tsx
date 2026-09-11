@@ -1,6 +1,6 @@
 import type { SetURLSearchParams } from "react-router"
 import { TripCategory } from "../../../../generated/prisma/enums"
-import { handleParamChange } from "~/utils/frontend-utils"
+import { handleParamChange } from "~/utils/frontend-utils/search-param-utils"
 export const GeneralDropdown = ({
   setSearchParams,
   searchParams

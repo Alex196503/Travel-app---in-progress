@@ -1,5 +1,5 @@
 import axios, { AxiosError } from "axios"
-import { accessTokenStorage } from "~/utils/frontend-utils"
+import { accessTokenStorage } from "~/utils/frontend-utils/access-storage"
 
 declare module "axios" {
   interface InternalAxiosRequestConfig {

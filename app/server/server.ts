@@ -7,17 +7,19 @@ import {
   globalErrorHandler,
   routeNotFoundHandler
 } from "~/utils/node-utils"
-import type { AuthenticatedUser } from "~/types/types"
+import type { AuthenticatedUser } from "~/types/auth-types"
 import { VerificationRouter } from "~/express-router/auth/VerificationRouter"
 import { PasswordRouter } from "~/express-router/auth/PasswordRouter"
 import { ProfileRouter } from "~/express-router/ProfileRouter"
 import { TripRouter } from "~/express-router/TripRouter"
 import { BookingRouter } from "~/express-router/BookingRouter"
+import "../node-services/cron-job-trips"
 import {
   PaymentRouter,
   webhookHandler
 } from "~/express-router/PaymentRouter"
 import { NotificationRouter } from "~/express-router/NotificationRouter"
+import { ReviewRouter } from "~/express-router/ReviewRouter"
 
 //Singleton pattern for server instance
 class Server {
@@ -74,7 +76,8 @@ server.addRouter("/api/profile", ProfileRouter)
 server.addRouter("/api/trips", TripRouter)
 server.addRouter("/api/bookings", BookingRouter)
 server.addRouter("/api/payments", PaymentRouter)
-server.addRouter("/api/notifications", NotificationRouter);
+server.addRouter("/api/notifications", NotificationRouter)
+server.addRouter("/api/reviews", ReviewRouter);
 server.useMiddleware(routeNotFoundHandler)
 server.addMiddlewareError(globalErrorHandler)
 

@@ -1,7 +1,7 @@
 //Service responsible for handling state-mutating operations related to payments, such as creating Stripe Checkout sessions, cancelling payments and refunds.
 
 import Stripe from "stripe"
-import type { CreateSessionParams } from "~/types/types"
+import type { CreateSessionParams } from "~/types/feature-types"
 import {
   BadRequestError,
   ForbiddenError,

@@ -15,15 +15,11 @@ import { useState } from "react"
 import { type CSSProperties } from "react"
 import { ClipLoader } from "react-spinners"
 import { CountryCard } from "~/routes/api/local_components/CountryCard"
-import {
-  useAuth,
-  useDebouncer,
-  useThemeContext
-} from "~/custom-hooks/react-hooks"
+import { useDebouncer } from "~/custom-hooks/utility-hooks"
 import PaginationComponent from "~/components/ApiComponents/Pagination"
 import { getMeta } from "~/helpers/helpers"
 import { getCountriesRawData } from "~/utils/node-utils"
-import { requireAuthOnServer } from "~/utils/frontend-utils"
+import { requireAuthOnServer } from "~/utils/frontend-utils/auth-guards"
 
 export const meta = () =>
   getMeta("Our API", "Check some information about several countries")

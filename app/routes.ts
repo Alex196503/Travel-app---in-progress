@@ -18,5 +18,6 @@ export default [
   route("/trips/:id", "routes/trip-detail-page/index.tsx"),
   route("/checkout/cancel", "routes/cancel-payment/index.tsx"),
   route("/checkout/success", "routes/success-payment/index.tsx"),
+  route("/trips/:id/reviews/form", "routes/review-page/index.tsx"),
   route("*", "routes/not-found-page/index.tsx")
 ] satisfies RouteConfig

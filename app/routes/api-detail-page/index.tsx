@@ -9,13 +9,16 @@ import { getCountriesRawData } from "~/utils/node-utils"
 import { useEffect } from "react"
 import { toast } from "react-toastify"
 import CountryContainer from "./local_components/CountryContainer"
-import type { RawCountry } from "~/types/types"
-import { useAuth, useThemeContext } from "~/custom-hooks/react-hooks"
-import { requireAuthOnServer } from "~/utils/frontend-utils"
-export const meta = getMeta(
-  "Detail page for every country",
-  "Check some information about the country"
-)
+import type { RawCountry } from "~/types/common-types"
+import { useThemeContext } from "~/custom-hooks/context-hooks"
+import { useAuth } from "~/custom-hooks/auth-hooks"
+import { requireAuthOnServer } from "~/utils/frontend-utils/auth-guards"
+
+export const meta = () =>
+  getMeta(
+    "Detail page for every country",
+    "Check some information about the country"
+  )
 export async function loader({ params, request }: Route.LoaderArgs) {
   await requireAuthOnServer(request)
 

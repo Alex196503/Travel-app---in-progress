@@ -16,16 +16,14 @@ import {
   ThemeContext
 } from "./react-contexts/context"
 import { useEffect, useState } from "react"
-import type {
-  AuthContextProps,
-  RegisterResponse
-} from "./types/types"
+import type { AuthContextProps } from "./types/auth-types"
+import { type RegisterResponse } from "./types/auth-types"
 import axios from "axios"
 import { api } from "./axios/axios"
-import { accessTokenStorage } from "./utils/frontend-utils"
 import ApiNav from "./routes/api/local_components/ApiNav"
 import { IoMoon, IoSunny } from "react-icons/io5"
 import { NotificationProvider } from "./context-providers/NotificationContext"
+import { accessTokenStorage } from "./utils/frontend-utils/access-storage"
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
