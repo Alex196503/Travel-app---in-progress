@@ -9,7 +9,9 @@ Our relational database(made in SQL) follows a relational structure to manage bo
 > of the last tours made, when was the reservation booked, when was the payment processed, having a **TIMESTAMP** data type, to track time accurately across our time
 > zone. These attributes were omitted from the initial ERD diagram to maintain visual clarity.
 > Due to spatial constraints in the ERD diagram, explicit ENUM status fields (such as 'pending', 'confirmed', or 'cancelled') were omitted from certain tables. However, they are a core architectural component used across the application to cleanly manage transactional lifecycles and states atomically.
-<img width="5063" height="2576" alt="Image" src="https://github.com/user-attachments/assets/30c121d1-ee46-4960-be80-a702138c8aeb" />
+
+<img width="2909" height="1542" alt="Database ER diagram (crow&#39;s foot) (5)" src="https://github.com/user-attachments/assets/ac8a3e4b-f964-45d7-89aa-ce73a6ff0839" />
+
 
 ## Key relationships:
 * A **many-to-many** relationships between users and trips, connected by a junction table, called bookings. It enables users to book multiple trips and trips to have multiple attendees flexibly.
