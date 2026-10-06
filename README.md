@@ -16,7 +16,7 @@ Our relational database(made in SQL) follows a relational structure to manage bo
 ## Key relationships:
 * A **many-to-many** relationships between users and trips, connected by a junction table, called bookings. It enables users to book multiple trips and trips to have multiple attendees flexibly.
 * A **one-to-many** relationship between **Users** and **Tickets**. Each user can open multiple support tickets regarding their bookings or general inquiries.
-* A **one-to-many** relationship between **Bookings** and **Payments**. Each booking can have one payment, but the payments table tracks the full transaction history including Stripe payment intent IDs.
+* A **one-to-many** relationship between **Bookings** and **Payments**. Each booking can have one payment, but the payments table tracks the full transaction history including Stripe payment intent IDs. We also have a **self-referencing one-to-many relationship**, where the table references itself through a  _reply_to_id_ foreign key pointing to its own _id_. In this way, a single message(or reply) can have multiple(limit on 2-3) replies(one-to-many), whilst each reply points back to a single parent message.
 
 
 ## Formal norms & Normalization
