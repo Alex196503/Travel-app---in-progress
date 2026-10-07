@@ -21,11 +21,34 @@ import { useModalBooking } from "~/custom-hooks/context-hooks"
 import { useUserBookings } from "~/custom-hooks/user-hooks"
 import { useAuth } from "~/custom-hooks/auth-hooks"
 import BookingCartModal from "../trip-page/local_components/BookingCartModal"
+import { ReviewCard } from "./local_components/ReviewCard"
 import {
-  ReviewCard,
-  type Review
-} from "./local_components/ReviewCard"
+  type Review,
+  type ReviewReply
+} from "~/types/feature-types"
 import { onDeleteReview } from "~/utils/frontend-utils/review-utils"
+
+type ReplyApiNode = {
+  id: number
+  comment: string
+  createdAt: string | Date
+  user: { id: number; name: string }
+  replies: ReplyApiNode[]
+}
+
+const mapReplyNodes = (replies: ReplyApiNode[]): ReviewReply[] =>
+  replies.map((reply) => ({
+    id: reply.id,
+    userId: reply.user.id,
+    name: reply.user.name,
+    date: new Date(reply.createdAt).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric"
+    }),
+    comment: reply.comment,
+    replies: mapReplyNodes(reply.replies)
+  }))
 
 export const meta = () =>
   getMeta(
@@ -53,17 +76,27 @@ export async function loader({ params, request }: Route.LoaderArgs) {
       })
     ])
 
-    const reviews: Review[] = reviewsResponse.data.reviews.map(
-      (review) => ({
-        id: review.id,
-        userId: review.user.id,
-        name: review.user.name,
-        date: new Date(review.created_at).toLocaleDateString(
-          "en-US",
-          { year: "numeric", month: "long", day: "numeric" }
-        ),
-        rating: review.rating,
-        comment: review.comment
+    const reviews: Review[] = await Promise.all(
+      reviewsResponse.data.reviews.map(async (review) => {
+        const repliesResponse = await api.get<{
+          success: boolean
+          replies: ReplyApiNode[]
+        }>(`/profile/reply/trips/${tripID}/reviews/${review.id}`, {
+          headers: { cookie: cookieHeaders }
+        })
+
+        return {
+          id: review.id,
+          userId: review.user.id,
+          name: review.user.name,
+          date: new Date(review.created_at).toLocaleDateString(
+            "en-US",
+            { year: "numeric", month: "long", day: "numeric" }
+          ),
+          rating: review.rating,
+          comment: review.comment,
+          replies: mapReplyNodes(repliesResponse.data.replies)
+        }
       })
     )
 
@@ -97,6 +130,10 @@ export default function TripDetailPage() {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isLightBoxOpen, setIsLightBoxOpen] = useState(false)
   const [currentNumberOfSeats, setCurrentNumberOfSeats] = useState(1)
+  const [openReplyForm, setOpenReplyForm] = useState<number | null>(
+    null
+  )
+
   const { isModalBookingsOpen, setModalBookingsOpen } =
     useModalBooking()
   const { user } = useAuth()
@@ -232,10 +269,13 @@ export default function TripDetailPage() {
                   key={review.id}
                   avatar={user?.avatar}
                   tripId={trip.id}
+                  currentUserId={user?.id ?? null}
                   canDelete={review.userId === user?.id}
                   canEdit={review.userId === user?.id}
                   setReviews={setReviews}
                   onDelete={onDeleteReview}
+                  openReplyForm={openReplyForm}
+                  setOpenReplyForm={setOpenReplyForm}
                 />
               ))}
             </div>

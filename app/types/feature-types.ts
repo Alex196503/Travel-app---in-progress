@@ -96,3 +96,22 @@ export type ReviewApiResponse = {
   success: boolean
   message: string
 }
+
+export interface Review {
+  id: number
+  userId: number
+  name: string
+  date: string
+  rating: number
+  comment: string
+  replies?: ReviewReply[]
+}
+
+export interface ReviewReply {
+  id: number
+  userId: number
+  name: string
+  date: string
+  comment: string
+  replies?: ReviewReply[]
+}

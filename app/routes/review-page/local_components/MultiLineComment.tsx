@@ -3,13 +3,15 @@ export const MultiLineComment = ({
   rows,
   minLength = 1,
   maxLength = 500,
-  defaultValue
+  defaultValue,
+  placeholder = "Write your comment here..."
 }: {
   name: string
   rows: number
   minLength?: number
   maxLength?: number
   defaultValue?: string
+  placeholder?: string
 }) => {
   return (
     <textarea
@@ -19,6 +21,7 @@ export const MultiLineComment = ({
       minLength={minLength}
       maxLength={maxLength}
       defaultValue={defaultValue}
+      placeholder={placeholder}
       required
       className="w-full border rounded-lg p-2"
     />
