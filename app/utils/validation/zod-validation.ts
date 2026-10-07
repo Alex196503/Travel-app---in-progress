@@ -104,3 +104,13 @@ export const createReviewSchema = z.object({
   rating: z.coerce.number().int().min(1).max(5),
   comment: z.string().trim().min(1).max(5000)
 })
+
+export const replySchema = z.object({
+  reviewId: idSchema,
+  comment: z.string().trim().min(1).max(5000),
+  replyToId: idSchema.nullable().optional()
+})
+
+export const replyUpdateSchema = z.object({
+  comment: z.string().trim().min(1).max(5000)
+})

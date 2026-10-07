@@ -20,6 +20,7 @@ import {
 } from "~/express-router/PaymentRouter"
 import { NotificationRouter } from "~/express-router/NotificationRouter"
 import { ReviewRouter } from "~/express-router/ReviewRouter"
+import { ReplyRouter } from "~/express-router/ReplyRouter"
 
 //Singleton pattern for server instance
 class Server {
@@ -77,7 +78,8 @@ server.addRouter("/api/trips", TripRouter)
 server.addRouter("/api/bookings", BookingRouter)
 server.addRouter("/api/payments", PaymentRouter)
 server.addRouter("/api/notifications", NotificationRouter)
-server.addRouter("/api/reviews", ReviewRouter);
+server.addRouter("/api/reviews", ReviewRouter)
+server.addRouter("/api/replies", ReplyRouter)
 server.useMiddleware(routeNotFoundHandler)
 server.addMiddlewareError(globalErrorHandler)
 

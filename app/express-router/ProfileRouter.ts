@@ -13,11 +13,76 @@ import {
 } from "~/utils/validation/zod-validation"
 import { uploadMiddleware } from "~/utils/node-utils"
 import { ProfileService } from "~/server/ProfileService"
-import { UnauthorizedError } from "~/server/auth/custom-errors"
+import {
+  BadRequestError,
+  NotFoundError,
+  UnauthorizedError
+} from "~/server/auth/custom-errors"
 import { BCryptHasher } from "~/server/auth/security-helpers"
+import { ReplyManagementService } from "~/server/reviews/ReplyManagementService"
+import {
+  idSchema,
+  replySchema,
+  replyUpdateSchema
+} from "~/utils/validation/zod-validation"
+import type z from "zod"
 export const ProfileRouter = express.Router()
 let bcryptHasher = new BCryptHasher()
 let profileService = new ProfileService(prisma, bcryptHasher)
+const replyManagementService = new ReplyManagementService(prisma)
+
+type ReplyResponseNode = {
+  id: number
+  comment: string
+  createdAt: Date
+  user: { id: number; name: string }
+  replies: ReplyResponseNode[]
+}
+
+ProfileRouter.get(
+  "/reply/trips/:tripId/reviews/:reviewId",
+  authentificationMiddleware,
+  async (
+    req: Request<{ tripId: string; reviewId: string }>,
+    res: Response<{
+      success: boolean
+      message?: string
+      replies?: ReplyResponseNode[]
+    }>,
+    next: NextFunction
+  ) => {
+    const tripId = idSchema.safeParse(req.params.tripId)
+    const reviewId = idSchema.safeParse(req.params.reviewId)
+
+    if (!tripId.success || !reviewId.success) {
+      return res.status(400).json({
+        success: false,
+        message: "Valid trip and review IDs are required."
+      })
+    }
+
+    try {
+      const replies =
+        await replyManagementService.getRepliesForReview(
+          tripId.data,
+          reviewId.data
+        )
+      return res.status(200).json({
+        success: true,
+        replies
+      })
+    } catch (error) {
+      if (error instanceof NotFoundError) {
+        return res.status(404).json({
+          success: false,
+          message: error.message
+        })
+      }
+      return next(error)
+    }
+  }
+)
+
 ProfileRouter.get(
   "/",
   authentificationMiddleware,

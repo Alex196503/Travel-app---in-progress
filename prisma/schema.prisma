@@ -26,6 +26,7 @@ model User{
   email_verification_token String? @db.Text
   email_verification_token_expires_at DateTime?
   bookings Booking[]
+  replies Replies[]
   review Review[]
   payment Payment[]
   notifications Notifications[]
@@ -135,6 +136,21 @@ model Review {
   user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
   trip       Trip     @relation(fields: [trip_id], references: [id], onDelete: Cascade)
   booking    Booking  @relation(fields: [booking_id], references: [id], onDelete: Cascade)
+  replies Replies[]
   created_at DateTime @default(now())
   @@map("reviews")
+}
+
+model Replies {
+  id           Int      @id @default(autoincrement())
+  review_id    Int
+  user_id      Int
+  comment      String   @db.Text
+  reply_to_id  Int?    
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  review       Review        @relation(fields: [review_id], references: [id], onDelete: Cascade)
+  user         User          @relation(fields: [user_id], references: [id])
+  targetMessage Replies?  @relation("MessageReplies", fields: [reply_to_id], references: [id], onDelete: Cascade)
+  replies       Replies[] @relation("MessageReplies")
 }
