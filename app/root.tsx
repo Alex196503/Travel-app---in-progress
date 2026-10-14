@@ -6,15 +6,14 @@ import {
   Scripts,
   ScrollRestoration
 } from "react-router"
-
 import type { Route } from "./+types/root"
 import "./app.css"
 import {
   AuthContext,
   ModalContext,
-  NotificationContext,
   ThemeContext
 } from "./react-contexts/context"
+import FloatingTicketWidget from "./routes/home/local_components/FloatingTicketWidget"
 import { useEffect, useState } from "react"
 import type { AuthContextProps } from "./types/auth-types"
 import { type RegisterResponse } from "./types/auth-types"
@@ -23,6 +22,7 @@ import { api } from "./axios/axios"
 import ApiNav from "./routes/api/local_components/ApiNav"
 import { IoMoon, IoSunny } from "react-icons/io5"
 import { NotificationProvider } from "./context-providers/NotificationContext"
+import { WebSocketProvider } from "./context-providers/WSContext"
 import { accessTokenStorage } from "./utils/frontend-utils/access-storage"
 
 export const links: Route.LinksFunction = () => [
@@ -45,7 +45,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthContextProps["user"] | null>(
     null
   )
-
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme") || "light"
     if (savedTheme === "dark") {
@@ -101,38 +100,41 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <AuthContext.Provider
         value={{ accessToken, setAccessToken, user, setUser }}
       >
-        <NotificationProvider>
-          <ModalContext.Provider
-            value={{ setModalBookingsOpen, isModalBookingsOpen }}
-          >
-            <html lang="en" className={isDark ? "dark" : ""}>
-              <head>
-                <meta charSet="utf-8" />
-                <meta
-                  name="viewport"
-                  content="width=device-width, initial-scale=1"
-                />
-                <Meta />
-                <Links />
-              </head>
-              <body className="bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-50 transition-colors duration-200">
-                <ApiNav
-                  navTitle="Visit a new country"
-                  user={user}
-                  isDark={isDark}
-                  setDark={setDark}
-                  bgColor={isDark ? "Dark" : "Light"}
-                >
-                  {" "}
-                  {isDark ? <IoMoon /> : <IoSunny />}{" "}
-                </ApiNav>
-                {children}
-                <ScrollRestoration />
-                <Scripts />
-              </body>
-            </html>
-          </ModalContext.Provider>
-        </NotificationProvider>
+        <WebSocketProvider>
+          <NotificationProvider>
+            <ModalContext.Provider
+              value={{ setModalBookingsOpen, isModalBookingsOpen }}
+            >
+              <html lang="en" className={isDark ? "dark" : ""}>
+                <head>
+                  <meta charSet="utf-8" />
+                  <meta
+                    name="viewport"
+                    content="width=device-width, initial-scale=1"
+                  />
+                  <Meta />
+                  <Links />
+                </head>
+                <body className="bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-50 transition-colors duration-200">
+                  <ApiNav
+                    navTitle="Visit a new country"
+                    user={user}
+                    isDark={isDark}
+                    setDark={setDark}
+                    bgColor={isDark ? "Dark" : "Light"}
+                  >
+                    {" "}
+                    {isDark ? <IoMoon /> : <IoSunny />}{" "}
+                  </ApiNav>
+                  {children}
+                  {user && <FloatingTicketWidget />}
+                  <ScrollRestoration />
+                  <Scripts />
+                </body>
+              </html>
+            </ModalContext.Provider>
+          </NotificationProvider>
+        </WebSocketProvider>
       </AuthContext.Provider>
     </ThemeContext.Provider>
   )

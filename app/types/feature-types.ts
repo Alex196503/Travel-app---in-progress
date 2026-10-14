@@ -1,4 +1,8 @@
 import type { TripWithImages } from "./trip-types"
+import type {
+  WebSocketMessage,
+  WebSocketServerMessage
+} from "~/utils/validation/zod-validation"
 
 export type NotificationItem = {
   id: number
@@ -114,4 +118,37 @@ export interface ReviewReply {
   date: string
   comment: string
   replies?: ReviewReply[]
+}
+
+export interface WebSocketContextType {
+  isConnected: boolean
+  sendMessage: (message: WebSocketMessage) => void
+  joinTicket: (ticketId: number) => void
+  sendTicketMessage: (ticketId: number, content: string) => void
+  lastMessage: WebSocketServerMessage | null
+}
+
+export type Ticket = {
+  id: number
+  subject: string
+  status: string
+  createdAt?: string | Date
+  updatedAt?: string | Date
+}
+
+export type AdminTickets = Ticket & {
+  user?: {
+    id: number
+    name: string
+    email: string
+  }
+}
+
+export interface WSIncomingMessage<T = unknown> {
+  event: string
+  data?: T
+}
+
+export interface AuthPayload {
+  token?: string
 }

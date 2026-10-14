@@ -16,7 +16,7 @@ import { BookingQueryService } from "~/server/bookings/BookingQueryService"
 import { NodemailerService } from "~/server/bookings/email-helpers"
 import { BookingCreationService } from "~/server/bookings/BookingCreationService"
 import { BookingManagementService } from "~/server/bookings/BookingManagementService"
-import { notificationEventEmitter } from "~/events/NotificationEventEmitter"
+import { notificationEventEmitter } from "~/events/EventEmitter"
 
 const nodemailerService = new NodemailerService()
 const bookingGetRequestsService = new BookingQueryService(prisma)

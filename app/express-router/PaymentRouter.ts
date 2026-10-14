@@ -23,7 +23,7 @@ import {
   StripeProcessor,
   StripeRefundProvider
 } from "~/server/payments/PaymentActionService"
-import { notificationEventEmitter } from "~/events/NotificationEventEmitter"
+import { notificationEventEmitter } from "~/events/EventEmitter"
 import { idSchema } from "~/utils/validation/zod-validation"
 
 export type PaymentDetailsResponse = Prisma.PaymentGetPayload<{

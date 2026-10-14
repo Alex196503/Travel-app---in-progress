@@ -1,4 +1,4 @@
-import type { INotificationEventEmitter } from "~/events/NotificationEventEmitter"
+import {type EventEmitterWrapper as INotificationEventEmitter} from "~/events/EventEmitter"
 import { type PrismaClient } from "../../../generated/prisma/client"
 import { BadRequestError, NotFoundError } from "../auth/custom-errors"
 // Service dedicated exclusively to modification, update, and cancellation operations (PATCH) for the Booking entity.

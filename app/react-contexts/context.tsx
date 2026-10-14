@@ -1,5 +1,5 @@
 import { createContext, useState } from "react"
-import { type NotificationContextProps } from "~/types/feature-types"
+import { type NotificationContextProps, type WebSocketContextType } from "~/types/feature-types"
 import type { AuthContextProps } from "~/types/auth-types"
 import { type ThemeContextProps } from "~/types/common-types"
 import { type ModalContextProps } from "~/types/common-types"
@@ -23,3 +23,6 @@ export const ModalContext = createContext<
 export const NotificationContext = createContext<
   NotificationContextProps | undefined
 >(undefined)
+
+// Creates the chat live context that stores all the data about the conversation made by user
+export const WebSocketContext = createContext<WebSocketContextType | null>(null)

@@ -1,6 +1,6 @@
 import cron from "node-cron"
 import { prisma } from "../../prisma/prisma"
-import { notificationEventEmitter } from "~/events/NotificationEventEmitter"
+import { notificationEventEmitter } from "~/events/EventEmitter"
 // Schedule a cron job to run every day at 9 AM to find upcoming trips in 2 days and send notifications to users about their trips.
 cron.schedule("0 9 * * *", async () => {
   console.log("Checking upcomming trips")

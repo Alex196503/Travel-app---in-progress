@@ -114,3 +114,84 @@ export const replySchema = z.object({
 export const replyUpdateSchema = z.object({
   comment: z.string().trim().min(1).max(5000)
 })
+
+export const ticketIdSchema = z
+  .number()
+  .int()
+  .positive()
+  .max(Number.MAX_SAFE_INTEGER)
+
+export const webSocketMessageSchema = z.discriminatedUnion("event", [
+  z
+    .object({
+      event: z.literal("join_ticket"),
+      data: z.object({ ticketId: ticketIdSchema }).strict()
+    })
+    .strict(),
+  z
+    .object({
+      event: z.literal("send_message"),
+      data: z
+        .object({
+          ticketId: ticketIdSchema,
+          content: z.string().trim().min(1).max(5000)
+        })
+        .strict()
+    })
+    .strict()
+])
+
+export type WebSocketMessage = z.infer<typeof webSocketMessageSchema>
+
+const ticketMessageSchema = z
+  .object({
+    id: idSchema,
+    ticket_id: idSchema,
+    user: z
+      .object({
+        id: idSchema,
+        name: z.string(),
+        email: z.string()
+      })
+      .strict(),
+    content: z.string(),
+    createdAt: z.string()
+  })
+  .strict()
+
+export const webSocketServerMessageSchema = z.discriminatedUnion("event", [
+  z.object({ event: z.literal("authenticated") }).strict(),
+  z
+    .object({
+      event: z.literal("joined_ticket"),
+      data: z.object({ message: z.string() }).strict()
+    })
+    .strict(),
+  z
+    .object({
+      event: z.literal("receive_message"),
+      data: ticketMessageSchema
+    })
+    .strict(),
+  z
+    .object({
+      event: z.literal("ticket_history"),
+      data: z
+        .object({
+          ticketId: ticketIdSchema,
+          messages: z.array(ticketMessageSchema)
+        })
+        .strict()
+    })
+    .strict(),
+  z
+    .object({
+      event: z.literal("error"),
+      data: z.object({ message: z.string() }).strict()
+    })
+    .strict()
+])
+
+export type WebSocketServerMessage = z.infer<
+  typeof webSocketServerMessageSchema
+>
