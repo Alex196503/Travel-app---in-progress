@@ -1,5 +1,5 @@
 import type { Response } from "express"
-import { notificationEventEmitter } from "~/events/NotificationEventEmitter"
+import { notificationEventEmitter } from "~/events/EventEmitter"
 import type { NotificationItem } from "~/types/feature-types"
 
 // Acts as an event listener for application events and pushes updates to connected users, offering encapsulation

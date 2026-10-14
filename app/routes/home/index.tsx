@@ -6,7 +6,7 @@ import { toast, ToastContainer } from "react-toastify"
 import { api } from "~/axios/axios"
 import { useState } from "react"
 import { CalendarContainer } from "./local_components/CalendarContainer"
-import { type UserBookingRow } from "~/types/feature-types"
+import type { UserBookingRow } from "~/types/feature-types"
 import { useCountdown } from "~/custom-hooks/utility-hooks"
 import { requireAuthOnServer } from "~/utils/frontend-utils/auth-guards"
 export const meta = () => getMeta("Home")
@@ -47,6 +47,7 @@ export default function Home() {
   const filteredBookings = bookings.filter(
     (booking) => booking.status !== "CANCELLED"
   )
+
   const handleResendVerification = async () => {
     setLoading(true)
     try {

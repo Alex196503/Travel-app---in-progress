@@ -2,7 +2,8 @@ import { useContext } from "react"
 import {
   ModalContext,
   NotificationContext,
-  ThemeContext
+  ThemeContext,
+  WebSocketContext
 } from "~/react-contexts/context"
 
 // Custom hook to safely consume the reset context.
@@ -31,6 +32,17 @@ export const useNotifications = () => {
   if (!context) {
     throw new Error(
       "useNotifications must be used within a NotificationPrFovider"
+    )
+  }
+  return context
+}
+
+// Custom hook to safely consume the WebSocket context.
+export const useWebSocket = () => {
+  const context = useContext(WebSocketContext)
+  if (!context) {
+    throw new Error(
+      "useWebSocket must be used within a WebSocketProvider"
     )
   }
   return context

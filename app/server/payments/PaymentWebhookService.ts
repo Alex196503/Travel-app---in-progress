@@ -1,7 +1,7 @@
 import {
   notificationEventEmitter,
-  type INotificationEventEmitter
-} from "~/events/NotificationEventEmitter"
+  type EventEmitterWrapper as INotificationEventEmitter
+} from "~/events/EventEmitter"
 import { PrismaClient } from "../../../generated/prisma/client"
 import { Stripe } from "stripe"
 export const stripe = new Stripe(process.env.SECRET_STRIPE_KEY || "")

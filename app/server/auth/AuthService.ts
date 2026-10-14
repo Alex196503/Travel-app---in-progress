@@ -6,7 +6,7 @@ import { BadRequestError, UnauthorizedError } from "./custom-errors"
 import type { PasswordHasher, TokenCrypto } from "./security-helpers"
 
 //Interface for generating access and refresh tokens
-interface TokenService {
+export interface TokenService {
   generateToken(
     userId: string,
     expiresIn: SignOptions["expiresIn"]

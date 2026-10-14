@@ -1,7 +1,7 @@
 import { EventEmitter } from "events"
 import type { NotificationItem } from "~/types/feature-types"
 
-export interface INotificationEventEmitter {
+export interface EventEmitterWrapper {
   emit(
     eventName: string | symbol,
     ...args: NotificationItem[]
@@ -10,7 +10,7 @@ export interface INotificationEventEmitter {
 }
 class NotificationEventEmitter
   extends EventEmitter
-  implements INotificationEventEmitter {}
+  implements EventEmitterWrapper {}
 
 //Singleton EventEmitter instance to be used across the application for emitting and listening to notification events.
 export const notificationEventEmitter = new NotificationEventEmitter()

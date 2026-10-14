@@ -8,7 +8,7 @@ import {
   NotFoundError
 } from "../auth/custom-errors"
 import type { PrismaClient } from "../../../generated/prisma/client"
-import type { INotificationEventEmitter } from "~/events/NotificationEventEmitter"
+import { type EventEmitterWrapper as INotificationEventEmitter } from "~/events/EventEmitter"
 export const stripe = new Stripe(process.env.SECRET_STRIPE_KEY || "")
 
 export const formatAmountForGateway = (
