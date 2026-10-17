@@ -42,6 +42,7 @@ import type {
   AuthPayload,
   WSIncomingMessage
 } from "~/types/feature-types"
+import { PromptRouter } from "~/express-router/PromptRouter"
 
 const jsonMessageFormatter = new JSONMessageFormatter()
 const handleWebSocketMessage = createWebSocketHandler(
@@ -192,6 +193,7 @@ server.useMiddleware(cookieParser())
 server.addRouter("/api/auth", AuthRouter)
 server.addRouter("/api/auth", VerificationRouter)
 server.addRouter("/api/auth", PasswordRouter)
+server.addRouter("/api/prompt", PromptRouter)
 server.addRouter("/api/profile", ProfileRouter)
 server.addRouter("/api/trips", TripRouter)
 server.addRouter("/api/bookings", BookingRouter)

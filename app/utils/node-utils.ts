@@ -72,7 +72,8 @@ export const uploadMiddleware = (folderName: string) => {
 const cooldownMaps = {
   verification: new Map<string, number>(),
   passwordReset: new Map<string, number>(),
-  editBooking: new Map<string, number>()
+  editBooking: new Map<string, number>(),
+  askGemini: new Map<string, number>()
 }
 
 // Check if a cooldown is still active for a given type and key. Returns isCooldown flag and remaining minutes if active.
@@ -108,4 +109,54 @@ export const setCooldown = (
   setTimeout(() => {
     map.delete(key)
   }, cooldownTime)
+}
+
+const getAllowedTicketAdminEmails = () =>
+  new Set(
+    (process.env.TICKET_ADMIN_EMAILS ?? "")
+      .split(",")
+      .map((email) => email.trim().toLowerCase())
+      .filter(Boolean)
+  )
+
+export const isTicketAdmin = (user: { email: string }): boolean =>
+  getAllowedTicketAdminEmails().has(user.email.trim().toLowerCase())
+
+// Shared server-side authorization: ticket owners and configured support admins may access a ticket.
+export const checkOwnerPermission = (
+  ticket: { user_id: number },
+  userId: number,
+  user: { email: string }
+): boolean => {
+  const isOwner = ticket.user_id === userId
+  return isOwner || isTicketAdmin(user)
+}
+
+// Type guard to safely validate and narrow an unknown item from an MCP tool response into a structured text object: { type: "text", text: string }.
+export function isTextContent(
+  item: unknown
+): item is { type: "text"; text: string } {
+  return (
+    typeof item === "object" &&
+    item !== null &&
+    "type" in item &&
+    item.type === "text" &&
+    "text" in item &&
+    typeof (item as any).text === "string"
+  )
+}
+
+//  Extracts and validates the text string from an MCP tool response content array.
+export function getTextContent(content: unknown): string {
+  if (!Array.isArray(content)) {
+    throw new Error("MCP tool returned an invalid content list.")
+  }
+
+  const textContent = content.find(isTextContent)
+
+  if (!textContent) {
+    throw new Error("MCP tool response did not contain text.")
+  }
+
+  return textContent.text
 }

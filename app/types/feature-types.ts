@@ -152,3 +152,16 @@ export interface WSIncomingMessage<T = unknown> {
 export interface AuthPayload {
   token?: string
 }
+
+interface AiSuccessResponse {
+  reply: string | undefined
+  toolUsed: boolean
+  toolName?: string
+}
+
+interface AiErrorResponse {
+  error: string
+  details?: unknown
+}
+
+export type APIResponse = AiSuccessResponse | AiErrorResponse

@@ -6,11 +6,15 @@ export interface RawCountry {
   subregion?: string
   capital?: string
   flag: string
+  flags?: {
+    svg?: string
+    png?: string
+  }
   alpha3Code?: string
   topLevelDomain?: string[]
   currencies?: Currency[]
   languages?: { name: string }[]
-  borders?: string[]
+  borders?: string[],
 }
 
 export interface Currency {

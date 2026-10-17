@@ -2,6 +2,7 @@ import { WebSocket } from "ws"
 import { PrismaClient } from "../../generated/prisma/client"
 import { wsManager, type IWSManager } from "~/socket-events/WSManager"
 import { type MessageFormatter } from "~/socket-events/WSManager"
+import { checkOwnerPermission } from "~/utils/node-utils"
 
 export class WSService {
   private prisma: PrismaClient
@@ -143,15 +144,8 @@ export class WSService {
     ])
     if (!ticket || !user) return null
 
-    const adminEmails = (process.env.TICKET_ADMIN_EMAILS ?? "")
-      .split(",")
-      .map((email) => email.trim().toLowerCase())
-      .filter(Boolean)
-    const isOwner = ticket.user_id === userId
-    const isAdmin = adminEmails.includes(
-      user.email.trim().toLowerCase()
-    )
-
-    return isOwner || isAdmin ? ticket : null
+    return checkOwnerPermission(ticket, userId, user)
+      ? ticket
+      : null
   }
 }

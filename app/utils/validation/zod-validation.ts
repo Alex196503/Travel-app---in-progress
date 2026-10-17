@@ -159,39 +159,53 @@ const ticketMessageSchema = z
   })
   .strict()
 
-export const webSocketServerMessageSchema = z.discriminatedUnion("event", [
-  z.object({ event: z.literal("authenticated") }).strict(),
-  z
-    .object({
-      event: z.literal("joined_ticket"),
-      data: z.object({ message: z.string() }).strict()
-    })
-    .strict(),
-  z
-    .object({
-      event: z.literal("receive_message"),
-      data: ticketMessageSchema
-    })
-    .strict(),
-  z
-    .object({
-      event: z.literal("ticket_history"),
-      data: z
-        .object({
-          ticketId: ticketIdSchema,
-          messages: z.array(ticketMessageSchema)
-        })
-        .strict()
-    })
-    .strict(),
-  z
-    .object({
-      event: z.literal("error"),
-      data: z.object({ message: z.string() }).strict()
-    })
-    .strict()
-])
+export const webSocketServerMessageSchema = z.discriminatedUnion(
+  "event",
+  [
+    z.object({ event: z.literal("authenticated") }).strict(),
+    z
+      .object({
+        event: z.literal("joined_ticket"),
+        data: z.object({ message: z.string() }).strict()
+      })
+      .strict(),
+    z
+      .object({
+        event: z.literal("receive_message"),
+        data: ticketMessageSchema
+      })
+      .strict(),
+    z
+      .object({
+        event: z.literal("ticket_history"),
+        data: z
+          .object({
+            ticketId: ticketIdSchema,
+            messages: z.array(ticketMessageSchema)
+          })
+          .strict()
+      })
+      .strict(),
+    z
+      .object({
+        event: z.literal("error"),
+        data: z.object({ message: z.string() }).strict()
+      })
+      .strict()
+  ]
+)
 
 export type WebSocketServerMessage = z.infer<
   typeof webSocketServerMessageSchema
 >
+
+export const chatBodySchema = z.object({
+  prompt: z
+    .string({
+      message: "The prompt must be a string."
+    })
+    .min(3, "Prompt too short (minimum 3 characters).")
+    .max(2000, "Prompt too long (maximum 2000 characters).")
+    .trim()
+})
+export type ChatRequestBody = z.infer<typeof chatBodySchema>
