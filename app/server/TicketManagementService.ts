@@ -4,6 +4,10 @@ import {
   ForbiddenError,
   NotFoundError
 } from "~/server/auth/custom-errors"
+import {
+  checkOwnerPermission,
+  isTicketAdmin
+} from "~/utils/node-utils"
 
 export class TicketManagementService {
   private prisma: PrismaClient
@@ -34,16 +38,7 @@ export class TicketManagementService {
       where: { id: userId },
       select: { email: true }
     })
-    const allowedAdminEmails = new Set(
-      (process.env.TICKET_ADMIN_EMAILS ?? "")
-        .split(",")
-        .map((email) => email.trim().toLowerCase())
-        .filter(Boolean)
-    )
-    if (
-      !isAdmin ||
-      !allowedAdminEmails.has(isAdmin.email.trim().toLowerCase())
-    ) {
+    if (!isAdmin || !isTicketAdmin(isAdmin)) {
       throw new ForbiddenError("Admin access required.")
     }
     const tickets = await this.prisma.ticket.findMany({
@@ -107,17 +102,7 @@ export class TicketManagementService {
     if (!ticket || !user) {
       throw new NotFoundError("Ticket not found")
     }
-    const allowedAdminEmails = new Set(
-      (process.env.TICKET_ADMIN_EMAILS ?? "")
-        .split(",")
-        .map((email) => email.trim().toLowerCase())
-        .filter(Boolean)
-    )
-    const isOwner = ticket.user_id === userId
-    const isAdmin = allowedAdminEmails.has(
-      user.email.trim().toLowerCase()
-    )
-    if (!isOwner && !isAdmin) {
+    if (!checkOwnerPermission(ticket, userId, user)) {
       throw new NotFoundError("Ticket not found")
     }
 
