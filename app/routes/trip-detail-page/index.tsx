@@ -22,10 +22,7 @@ import { useUserBookings } from "~/custom-hooks/user-hooks"
 import { useAuth } from "~/custom-hooks/auth-hooks"
 import BookingCartModal from "../trip-page/local_components/BookingCartModal"
 import { ReviewCard } from "./local_components/ReviewCard"
-import {
-  type Review,
-  type ReviewReply
-} from "~/types/feature-types"
+import { type Review, type ReviewReply } from "~/types/feature-types"
 import { onDeleteReview } from "~/utils/frontend-utils/review-utils"
 
 type ReplyApiNode = {
@@ -144,6 +141,7 @@ export default function TripDetailPage() {
     setIsLightBoxOpen(true)
   }
 
+  // De testat logica asta in RTL cu imaginile
   const goNext = (e: React.MouseEvent) => {
     e.stopPropagation()
     if (!trip.images || trip.images.length === 0) return

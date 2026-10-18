@@ -83,6 +83,9 @@ export const checkCooldown = (
   cooldownTime: number
 ) => {
   const map = cooldownMaps[type]
+  if (!map) {
+    return { isCooldown: false }
+  }
   const lastSentTime = map.get(key)
   const now = Date.now()
   if (lastSentTime && now - lastSentTime < cooldownTime) {
@@ -105,10 +108,16 @@ export const setCooldown = (
 ) => {
   const map = cooldownMaps[type]
   let date = Date.now()
+  if (!map) return
   map.set(key, date)
   setTimeout(() => {
     map.delete(key)
   }, cooldownTime)
+}
+
+// Utility function used in testing to clear out the entire map
+export const resetAllCooldownsForTesting = () => {
+  Object.values(cooldownMaps).forEach((entry) => entry.clear())
 }
 
 const getAllowedTicketAdminEmails = () =>

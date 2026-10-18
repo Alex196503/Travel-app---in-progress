@@ -3,6 +3,7 @@ import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js"
 import {
   FunctionResponsePart,
   GoogleGenAI,
+  type Content,
   type Tool
 } from "@google/genai"
 import { fileURLToPath } from "node:url"
@@ -53,60 +54,63 @@ class MCPOrchestrator {
       throw new Error("MCP Client is not initialized.")
     }
     console.log(`\n[Orchestrator] Recieved prompt: ${userPrompt}`)
-    const response = await this.ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: userPrompt,
-      config: { tools: this.geminiTools }
-    })
-    const functionCalls = response.functionCalls ?? []
-    if (functionCalls.length === 0) {
-      return { reply: response.text, toolUsed: false }
-    }
-    const functionResponses: FunctionResponsePart[] = []
-    let executedToolName = ""
-    for (const call of functionCalls) {
-      if (!call.name) continue
-      executedToolName = call.name
-      console.log(
-        `[Orchestrator] Executing MCP tool: [${call.name}] with the following arguments:`,
-        call.args
-      )
-      const mcpResult = await this.mcpClient.callTool({
-        name: call.name,
-        arguments: call.args ?? {}
+    const conversationHistory: Content[] = [
+      { role: "user", parts: [{ text: userPrompt }] }
+    ]
+    let toolUsedCount = 0
+    let lastToolName = ""
+    while (true) {
+      const response = await this.ai.models.generateContent({
+        model: "gemini-2.5-flash",
+        contents: conversationHistory,
+        config: { tools: this.geminiTools }
       })
-
-      const toolOutputText = getTextContent(mcpResult.content)
-      functionResponses.push({
-        functionResponse: {
-          name: call.name,
-          response: {
-            result: toolOutputText,
-            ...(mcpResult.isError ? { error: true } : {})
-          }
+      const functionCalls = response.functionCalls ?? []
+      if (functionCalls.length === 0) {
+        return {
+          reply: response.text,
+          toolUsed: toolUsedCount > 0,
+          toolName: lastToolName
         }
-      } as FunctionResponsePart)
-    }
-    const finalResponse = await this.ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: [
-        { role: "user", parts: [{ text: userPrompt }] },
-        {
-          role: "model",
-          parts: functionCalls.map((call) => ({ functionCall: call }))
-        },
-        {
-          role: "user",
-          parts: functionResponses
-        }
-      ],
-      config: { tools: this.geminiTools }
-    })
+      }
+      conversationHistory.push({
+        role: "model",
+        parts: functionCalls.map((call) => ({ functionCall: call }))
+      })
+      const functionResponses = await Promise.all(
+        functionCalls.map(async (call) => {
+          if (!call.name) return null
+          lastToolName = call.name
+          toolUsedCount++
 
-    return {
-      reply: finalResponse.text,
-      toolUsed: true,
-      toolName: executedToolName
+          console.log(
+            `[Orchestrator] Executing MCP tool: [${call.name}] with arguments:`,
+            call.args
+          )
+
+          const mcpResult = await this.mcpClient!.callTool({
+            name: call.name,
+            arguments: call.args ?? {}
+          })
+
+          const toolOutputText = getTextContent(mcpResult.content)
+          return {
+            functionResponse: {
+              name: call.name,
+              response: {
+                result: toolOutputText,
+                ...(mcpResult.isError ? { error: true } : {})
+              }
+            }
+          } as FunctionResponsePart
+        })
+      )
+      conversationHistory.push({
+        role: "user",
+        parts: functionResponses.filter(
+          Boolean
+        ) as FunctionResponsePart[]
+      })
     }
   }
 }

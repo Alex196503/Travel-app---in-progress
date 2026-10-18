@@ -5,15 +5,14 @@ import type {
   UserBookingRow
 } from "~/types/feature-types"
 
-export function generateMatrix(year: number, month: number) {
-  const firstDayOfMonth = new Date(year, month, 1)
-  const lastDayOfMonth = new Date(year, month + 1, 0)
-  const days: CalendarDay[] = []
-  let startingDayOfWeek = firstDayOfMonth.getDay() - 1
-  if (startingDayOfWeek === -1) startingDayOfWeek = 6
-  const prevMonthLastDay = new Date(year, month, 0).getDate()
-
-  //Adding final days from the previous month (to fill the first row)
+//Adding final days from the previous month (to fill the first row)
+export function completeDaysFromPreviousMonth(
+  startingDayOfWeek: number,
+  year: number,
+  month: number,
+  prevMonthLastDay: number,
+  days: CalendarDay[]
+) {
   for (let i = startingDayOfWeek - 1; i >= 0; i--) {
     const prevDate = new Date(year, month - 1, prevMonthLastDay - i)
     days.push({
@@ -23,6 +22,72 @@ export function generateMatrix(year: number, month: number) {
       isToday: false
     })
   }
+}
+
+//Filling the calendar until we have a grid of 35 or 42 days
+export function fillTheFullCalendar(
+  year: number,
+  month: number,
+  days: CalendarDay[]
+) {
+  const totalCells = days.length <= 35 ? 35 : 42
+  const remainingCells = totalCells - days.length
+  for (let i = 1; i <= remainingCells; i++) {
+    const newDate = new Date(year, month + 1, i)
+    days.push({
+      date: newDate,
+      dayNumber: i,
+      isCurrentMonth: false,
+      isToday: false
+    })
+  }
+}
+
+//helper function that converts the booking date into the correct timezone and groups the bookings by their booking date
+export function groupBookingsByDate(
+  map: Map<string, FormattedBookingForCalendar[]>,
+  formattedBookings: FormattedBookingForCalendar[]
+) {
+  for (let i = 0; i < formattedBookings.length; i++) {
+    const booking = formattedBookings[i]
+    const start = new Date(booking.startDate)
+    const end = new Date(booking.endDate)
+    const currentIterDate = new Date(
+      start.getFullYear(),
+      start.getMonth(),
+      start.getDate()
+    )
+    const endDate = new Date(
+      end.getFullYear(),
+      end.getMonth(),
+      end.getDate()
+    )
+    while (currentIterDate <= endDate) {
+      const dateKey = toDateKeyInTimeZone(currentIterDate)
+      if (!map.has(dateKey)) {
+        map.set(dateKey, [])
+      }
+      const existings = map.get(dateKey) || []
+      map.set(dateKey, [...existings, formattedBookings[i]])
+      currentIterDate.setDate(currentIterDate.getDate() + 1)
+    }
+  }
+}
+
+export function generateMatrix(year: number, month: number) {
+  const firstDayOfMonth = new Date(year, month, 1)
+  const lastDayOfMonth = new Date(year, month + 1, 0)
+  const days: CalendarDay[] = []
+  let startingDayOfWeek = firstDayOfMonth.getDay() - 1
+  if (startingDayOfWeek === -1) startingDayOfWeek = 6
+  const prevMonthLastDay = new Date(year, month, 0).getDate()
+  completeDaysFromPreviousMonth(
+    startingDayOfWeek,
+    year,
+    month,
+    prevMonthLastDay,
+    days
+  )
 
   //Adding all days from the current month
   const today = new Date()
@@ -39,19 +104,7 @@ export function generateMatrix(year: number, month: number) {
       isToday
     })
   }
-
-  //Filling the calendar until we have a grid of 35 or 42 days
-  const totalCells = days.length <= 35 ? 35 : 42
-  const remainingCells = totalCells - days.length
-  for (let i = 1; i <= remainingCells; i++) {
-    const newDate = new Date(year, month + 1, i)
-    days.push({
-      date: newDate,
-      dayNumber: i,
-      isCurrentMonth: false,
-      isToday: false
-    })
-  }
+  fillTheFullCalendar(year, month, days)
   return days
 }
 
@@ -105,20 +158,7 @@ export function CalendarContainer({
 
   const bookingsMap = useMemo(() => {
     const map = new Map<string, FormattedBookingForCalendar[]>()
-    for (let i = 0; i < formattedBookings.length; i++) {
-      let startDate = new Date(formattedBookings[i].startDate)
-      const currentIterDate = new Date(startDate)
-      const endDate = new Date(formattedBookings[i].endDate)
-      while (currentIterDate <= endDate) {
-        const dateKey = toDateKeyInTimeZone(currentIterDate)
-        if (!map.has(dateKey)) {
-          map.set(dateKey, [])
-        }
-        const existings = map.get(dateKey) || []
-        map.set(dateKey, [...existings, formattedBookings[i]])
-        currentIterDate.setDate(currentIterDate.getDate() + 1)
-      }
-    }
+    groupBookingsByDate(map, formattedBookings)
     return map
   }, [formattedBookings])
 
