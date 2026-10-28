@@ -8,17 +8,59 @@ import {
 } from "@google/genai"
 import { fileURLToPath } from "node:url"
 import dotenv from "dotenv"
-import { getTextContent } from "~/utils/node-utils"
 dotenv.config()
+
+interface IMCPTextExtractor {
+  getTextContent(content: unknown): string
+  isTextContent(item: unknown): item is {
+    type: "text"
+    text: string
+  }
+}
+
+class MCPTextExtractor implements IMCPTextExtractor {
+
+  //Type guard to safely validate and narrow an unknown item from an MCP tool response into a structured text object: { type: "text", text: string }.
+  isTextContent(
+    item: unknown
+  ): item is { type: "text"; text: string } {
+    return (
+      typeof item === "object" &&
+      item !== null &&
+      "type" in item &&
+      item.type === "text" &&
+      "text" in item &&
+      typeof (item as any).text === "string"
+    )
+  }
+  
+  //Extracts and validates the text string from an MCP tool response content array.
+  getTextContent(content: unknown): string {
+    if (!Array.isArray(content)) {
+      throw new Error("MCP tool returned an invalid content list.")
+    }
+    const textContent = content.find(
+      (item: { type: "text"; text: string }) =>
+        this.isTextContent(item)
+    )
+    if (!textContent) {
+      throw new Error("MCP tool response did not contain text.")
+    }
+    return textContent.text
+  }
+}
+
 class MCPOrchestrator {
   private mcpClient: Client | null = null
   private transport: StdioClientTransport | null = null
   private geminiTools: Tool[] = []
   private ai: GoogleGenAI
-  constructor() {
+  private mcpTextExtractor: IMCPTextExtractor
+  constructor(mcpTextExtractor: IMCPTextExtractor) {
     const apiKey = process.env.GEMINI_API_KEY
     if (!apiKey) throw new Error("GEMINI_API_KEY is not configured.")
     this.ai = new GoogleGenAI({ apiKey })
+    this.mcpTextExtractor = mcpTextExtractor
   }
   public async init() {
     const projectRoot = fileURLToPath(
@@ -93,7 +135,9 @@ class MCPOrchestrator {
             arguments: call.args ?? {}
           })
 
-          const toolOutputText = getTextContent(mcpResult.content)
+          const toolOutputText = this.mcpTextExtractor.getTextContent(
+            mcpResult.content
+          )
           return {
             functionResponse: {
               name: call.name,
@@ -114,7 +158,8 @@ class MCPOrchestrator {
     }
   }
 }
-export const orchestrator = new MCPOrchestrator()
+const mcpTextExtractor = new MCPTextExtractor()
+export const orchestrator = new MCPOrchestrator(mcpTextExtractor)
 orchestrator
   .init()
   .then(() => console.log("Orchestrator running on localhost..."))

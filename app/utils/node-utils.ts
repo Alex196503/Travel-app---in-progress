@@ -1,12 +1,13 @@
 import fs from "fs/promises"
 import path from "node:path"
 import type { RawCountry } from "~/types/common-types"
-
+import { type Express } from "express"
 import {
   type Response,
   type Request,
   type NextFunction
 } from "express"
+import request from "supertest"
 import multer from "multer"
 import { cloudinaryVar } from "../cloudinary-config"
 import { CloudinaryStorage } from "multer-storage-cloudinary"
@@ -141,31 +142,24 @@ export const checkOwnerPermission = (
   return isOwner || isTicketAdmin(user)
 }
 
-// Type guard to safely validate and narrow an unknown item from an MCP tool response into a structured text object: { type: "text", text: string }.
-export function isTextContent(
-  item: unknown
-): item is { type: "text"; text: string } {
-  return (
-    typeof item === "object" &&
-    item !== null &&
-    "type" in item &&
-    item.type === "text" &&
-    "text" in item &&
-    typeof (item as any).text === "string"
-  )
-}
+type HTTPMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE"
 
-//  Extracts and validates the text string from an MCP tool response content array.
-export function getTextContent(content: unknown): string {
-  if (!Array.isArray(content)) {
-    throw new Error("MCP tool returned an invalid content list.")
+//Helper function to send an asynchronous HTTP request using Supertest and automates setting the request headers and sending the payload JSON data.
+export const makeHTTPRequest = async <T>(
+  application: Express,
+  method: HTTPMethod,
+  link: string,
+  payload?: T
+) => {
+  const httpMethod = method.toLowerCase() as Lowercase<HTTPMethod>
+  const req = request(application)
+    [httpMethod](link)
+    .set("Accept", "application/json")
+  if (
+    payload &&
+    ["POST", "PUT", "PATCH"].includes(method.toUpperCase())
+  ) {
+    req.send(payload as object)
   }
-
-  const textContent = content.find(isTextContent)
-
-  if (!textContent) {
-    throw new Error("MCP tool response did not contain text.")
-  }
-
-  return textContent.text
+  return await req
 }
