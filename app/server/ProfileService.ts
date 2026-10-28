@@ -23,6 +23,7 @@ export class ProfileService {
     }
     return existingData
   }
+  
   async updateProfile(userId: string, input: UpdateProfileInput) {
     let userFound = await this.prisma.user.findUnique({
       where: { id: Number(userId) }

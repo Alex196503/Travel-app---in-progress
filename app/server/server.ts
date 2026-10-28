@@ -50,6 +50,8 @@ const handleWebSocketMessage = createWebSocketHandler(
   wsManager
 )
 
+export const app =express()
+
 //Singleton pattern for server instance
 class Server {
   private app: Application
@@ -161,8 +163,6 @@ class Server {
     }
   }
 }
-
-const app = express()
 const serverInstance = http.createServer(app)
 const wssInstance = new WebSocketServer({ server: serverInstance })
 const port = Number(process.env.PORT) || 5000
@@ -194,9 +194,9 @@ server.addRouter("/api/auth", AuthRouter)
 server.addRouter("/api/auth", VerificationRouter)
 server.addRouter("/api/auth", PasswordRouter)
 server.addRouter("/api/prompt", PromptRouter)
-server.addRouter("/api/profile", ProfileRouter)
 server.addRouter("/api/trips", TripRouter)
 server.addRouter("/api/bookings", BookingRouter)
+server.addRouter("/api/profile", ProfileRouter)
 server.addRouter("/api/payments", PaymentRouter)
 server.addRouter("/api/notifications", NotificationRouter)
 server.addRouter("/api/reviews", ReviewRouter)
@@ -205,7 +205,9 @@ server.addRouter("/api/tickets", TicketRouter)
 server.useMiddleware(routeNotFoundHandler)
 server.addMiddlewareError(globalErrorHandler)
 
-server.start()
+if (process.env.NODE_ENV !== "test") {
+  server.start()
+}
 
 //TypeScript Declaration Merging: Extends the global Express Request interface to include an optional 'user' property, allowing authenticated user data to be safely attached to requests across the app.
 declare global {

@@ -17,7 +17,6 @@ import {
   idSchema,
   ticketIdSchema
 } from "~/utils/validation/zod-validation"
-import { wsManager } from "~/socket-events/WSManager"
 export const TicketRouter = express.Router()
 const ticketManagementService = new TicketManagementService(prisma)
 
@@ -185,6 +184,11 @@ TicketRouter.patch(
     } catch (error) {
       if (error instanceof NotFoundError) {
         return res.status(404).json({
+          success: false,
+          message: error.message
+        })
+      } else if (error instanceof Conflict) {
+        return res.status(409).json({
           success: false,
           message: error.message
         })

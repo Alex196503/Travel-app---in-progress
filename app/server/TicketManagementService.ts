@@ -92,7 +92,7 @@ export class TicketManagementService {
     const [ticket, user] = await Promise.all([
       this.prisma.ticket.findUnique({
         where: { id: ticketId },
-        select: { id: true, user_id: true }
+        select: { id: true, user_id: true,status: true }
       }),
       this.prisma.user.findUnique({
         where: { id: userId },
@@ -105,7 +105,10 @@ export class TicketManagementService {
     if (!checkOwnerPermission(ticket, userId, user)) {
       throw new NotFoundError("Ticket not found")
     }
-
+    if(ticket.status === "RESOLVED")
+    {
+      throw new Conflict("Ticket already resolved")
+    }
     const updatedTicket = await this.prisma.ticket.update({
       where: { id: ticketId },
       data: { status: "RESOLVED" }
